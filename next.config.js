@@ -25,26 +25,6 @@ const nextConfig = {
       },
     ];
   },
-
-  // Custom headers to upgrade requests for WebSocket connection
-  async headers() {
-    return [
-      {
-        // Apply to all paths that need WebSocket support
-        source: "/ws/:path*",
-        headers: [
-          {
-            key: "Connection",
-            value: "upgrade",
-          },
-          {
-            key: "Upgrade",
-            value: "websocket",
-          },
-        ],
-      },
-    ];
-  },
 };
 
 module.exports = nextConfig;
