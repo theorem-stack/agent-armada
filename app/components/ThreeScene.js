@@ -7,7 +7,7 @@ import Agent from './Agent';
 import Target from './Target';
 import Obstacle from './Obstacle';
 import { getColorBySwarmId, createRefinedHeightMapTexture, convertEnvPositionToThree, convertEnvRadiusToThree } from '../lib/helpers';
-import { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
+import { DATA_FREQUENCY, TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
 import { attachIndicatorsToAgent, updateAgentIndicators } from './visuals/indicators';
 
 const ThreeScene = () => {
@@ -67,145 +67,136 @@ const ThreeScene = () => {
 
         // --------------------------------------------------------------
 
-        // WebSocket connection
-        const socket = new WebSocket('ws://localhost:8000/ws/agents');
+        // Fetch data from API at regular intervals (polling)
+        const fetchData = async () => {
+            try {
+                const response = await fetch('/api/py/data');
+                const data = await response.json();
 
-        socket.onopen = () => {
-            console.log('WebSocket connection established');
-            // Send a test message (optional)
-            socket.send('Hello from the client!');
-        };
+                const targetsData = data.targets;
+                const obstaclesData = data.obstacles;
+                const agentsData = data.agents;
+                // const detectionData = data.agent_detections;
 
-        socket.onmessage = (event) => {
+                // console.log('Received agents data:', agentsData);
+                // console.log('Received targets data:', targetsData);
+                // console.log('Received obstacles data:', obstaclesData);
 
-            const data = JSON.parse(event.data);
+                // Create or update targets
+                Object.entries(targetsData).forEach(([id, targetData]) => {
+                    const {
+                        position,
+                        radius
+                    } = targetData;
 
-            const targetsData = data.targets;
-            const obstaclesData = data.obstacles;
-            const agentsData = data.agents;
-            // const detectionData = data.agent_detections;
+                    const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
 
-            console.log('Received agents data:', agentsData);
-            console.log('Received targets data:', targetsData);
-            console.log('Received obstacles data:', obstaclesData);
+                    // Find existing Agent by id
+                    let target = targetsRef.current.find(t => t.id === id);
 
-            // Create or update targets
-            Object.entries(targetsData).forEach(([id, targetData]) => {
-                const {
-                    position,
-                    radius
-                } = targetData;
+                    if (!target) {
+                        // Create a new Agent if it doesn't exist
+                        target = new Target(
+                            id,
+                            pos,
+                            convertEnvRadiusToThree(radius, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT),
+                            getColorBySwarmId(id)
+                        );
+                        scene.add(target.mesh);
+                        targetsRef.current.push(target);
+                    } else {
+                        // Update the existing Agent's position
+                        target.position.copy(pos);
+                        target.updateMeshPosition();
+                        target.updateColor(getColorBySwarmId(id));
+                    }
+                });
 
-                const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
+                // Create or update obstacles
+                Object.entries(obstaclesData).forEach(([id, obstacleData]) => {
+                    const {
+                        position,
+                        radius
+                    } = obstacleData;
 
-                // Find existing Agent by id
-                let target = targetsRef.current.find(t => t.id === id);
+                    const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
 
-                if (!target) {
-                    // Create a new Agent if it doesn't exist
-                    target = new Target(
-                        id,
-                        pos,
-                        convertEnvRadiusToThree(radius, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT),
-                        getColorBySwarmId(id)
-                    );
-                    scene.add(target.mesh);
-                    targetsRef.current.push(target);
-                } else {
-                    // Update the existing Agent's position
-                    target.position.copy(pos);
-                    target.updateMeshPosition();
-                    target.updateColor(getColorBySwarmId(id));
-                }
-            });
+                    // Find existing Agent by id
+                    let obstacle = obstaclesRef.current.find(o => o.id === id);
 
-            // Create or update obstacles
-            Object.entries(obstaclesData).forEach(([id, obstacleData]) => {
-                const {
-                    position,
-                    radius
-                } = obstacleData;
+                    if (!obstacle) {
+                        // Create a new Agent if it doesn't exist
+                        obstacle = new Obstacle(
+                            id,
+                            pos,
+                            convertEnvRadiusToThree(radius, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT),
+                            getColorBySwarmId(getColorBySwarmId(id))
+                        );
+                        scene.add(obstacle.mesh);
+                        obstaclesRef.current.push(obstacle);
+                    } else {
+                        // Update the existing Agent's position
+                        obstacle.position.copy(pos);
+                        obstacle.updateMeshPosition();
+                        obstacle.updateColor(getColorBySwarmId(id));
+                    }
+                });
 
-                const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
-
-                // Find existing Agent by id
-                let obstacle = obstaclesRef.current.find(o => o.id === id);
-
-                if (!obstacle) {
-                    // Create a new Agent if it doesn't exist
-                    obstacle = new Obstacle(
-                        id,
-                        pos,
-                        convertEnvRadiusToThree(radius, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT),
-                        getColorBySwarmId(getColorBySwarmId(id))
-                    );
-                    scene.add(obstacle.mesh);
-                    obstaclesRef.current.push(obstacle);
-                } else {
-                    // Update the existing Agent's position
-                    obstacle.position.copy(pos);
-                    obstacle.updateMeshPosition();
-                    obstacle.updateColor(getColorBySwarmId(id));
-                }
-            });
-
-            // Create or update agents
-            Object.entries(agentsData).forEach(([id, agentData]) => {
-                const {
-                    target_id,
-                    position,
-                    z_positon,
-                    velocity,
-                    acceleration
-                } = agentData;
-
-                const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
-
-                // Find existing Agent by id
-                let agent = agentsRef.current.find(b => b.id === id);
-
-                if (!agent) {
-                    // Create a new Agent if it doesn't exist
-                    agent = new Agent(
-                        id,
+                // Create or update agents
+                Object.entries(agentsData).forEach(([id, agentData]) => {
+                    const {
                         target_id,
-                        pos,
+                        position,
                         z_positon,
                         velocity,
-                        acceleration,
-                        getColorBySwarmId(target_id)
-                    );
+                        acceleration
+                    } = agentData;
 
-                    // Attach indicators to the new Agent
-                    const indicators = attachIndicatorsToAgent(agent, {
-                        boundingBox: true,
-                        crosshair: false,
-                        detectionRadius: false,
-                    });
-                    agent.indicators = indicators; // Attach indicators to the Agent object
+                    const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
 
-                    scene.add(agent.mesh); // Add the new Agent mesh to the scene
-                    scene.add(indicators); // Add the indicator group to the scene
-                    agentsRef.current.push(agent); // Add the new Agent to the ref
-                } else {
-                    // Update the existing Agent's position
-                    agent.position.copy(pos);
-                    agent.updateMeshPosition();
-                    agent.updateColor(getColorBySwarmId(target_id));
+                    // Find existing Agent by id
+                    let agent = agentsRef.current.find(b => b.id === id);
 
-                    // Update indicators
-                    updateAgentIndicators(agent);
-                }
-            });
+                    if (!agent) {
+                        // Create a new Agent if it doesn't exist
+                        agent = new Agent(
+                            id,
+                            target_id,
+                            pos,
+                            z_positon,
+                            velocity,
+                            acceleration,
+                            getColorBySwarmId(target_id)
+                        );
+
+                        // Attach indicators to the new Agent
+                        const indicators = attachIndicatorsToAgent(agent, {
+                            boundingBox: true,
+                            crosshair: false,
+                            detectionRadius: false,
+                        });
+                        agent.indicators = indicators; // Attach indicators to the Agent object
+
+                        scene.add(agent.mesh); // Add the new Agent mesh to the scene
+                        scene.add(indicators); // Add the indicator group to the scene
+                        agentsRef.current.push(agent); // Add the new Agent to the ref
+                    } else {
+                        // Update the existing Agent's position
+                        agent.position.copy(pos);
+                        agent.updateMeshPosition();
+                        agent.updateColor(getColorBySwarmId(target_id));
+
+                        // Update indicators
+                        updateAgentIndicators(agent);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
         };
 
-        socket.onclose = (event) => {
-        console.log('WebSocket connection closed:', event);
-        };
-
-        socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        };
+        // Call the API every 5 seconds
+        const intervalId = setInterval(fetchData, DATA_FREQUENCY); // Poll every 1 seconds
 
         // Simple animation loop (just to keep the scene active)
         const animate = () => {
@@ -217,7 +208,7 @@ const ThreeScene = () => {
 
         return () => {
             // Cleanup
-            socket.close(); // Close WebSocket connection
+            clearInterval(intervalId);
             renderer.dispose();
             document.body.removeChild(renderer.domElement);
         };

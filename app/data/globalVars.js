@@ -11,5 +11,6 @@ const ENV_WIDTH = 800;   // Environment width
 const ENV_HEIGHT = 600;  // Environment height
 const THREE_WIDTH = 10;     // Define the width of your Three.js scene
 const THREE_HEIGHT = 7.5;   // Define the height of your Three.js scene
+const DATA_FREQUENCY = 200;  // Data update frequency in milliseconds
 
-export { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT };
+export { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT, DATA_FREQUENCY };

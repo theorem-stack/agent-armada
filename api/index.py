@@ -30,26 +30,24 @@ agent_detections_data = {}
 simulation_running = False
 simulation_task = None  # To keep track of the running simulation task
 
-class ConnectionManager:
-    """Class defining socket events"""
-    def __init__(self):
-        """init method, keeping track of connections"""
-        self.active_connections = []
+# class ConnectionManager:
+#     """Class defining socket events"""
+#     def __init__(self):
+#         """init method, keeping track of connections"""
+#         self.active_connections = []
     
-    async def connect(self, websocket: WebSocket):
-        """connect event"""
-        await websocket.accept()
-        self.active_connections.append(websocket)
+#     async def connect(self, websocket: WebSocket):
+#         """connect event"""
+#         await websocket.accept()
+#         self.active_connections.append(websocket)
 
-    async def send_data(self, message, websocket: WebSocket):
-        """Direct Message"""
-        await websocket.send_json(message)
+#     async def send_data(self, message, websocket: WebSocket):
+#         """Direct Message"""
+#         await websocket.send_json(message)
     
-    def disconnect(self, websocket: WebSocket):
-        """disconnect event"""
-        self.active_connections.remove(websocket)
-
-manager = ConnectionManager()
+#     def disconnect(self, websocket: WebSocket):
+#         """disconnect event"""
+#         self.active_connections.remove(websocket)
 
 async def run_simulation():
 
@@ -145,29 +143,29 @@ async def run_simulation():
 async def startup_event():
     print("FastAPI server has started. Waiting for simulation start.")
 
-# WebSocket endpoint for real-time updates
-@app.websocket("/ws/agents")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
-    try:
-        print("Connection Established")
-        while True:
-            # Your logic to send data to the client
-            data = {
-                "targets": targets_data,
-                "obstacles": obstacles_data,
-                "agents": agents_data,
-                "agent_detections": agent_detections_data
-            }
+# # WebSocket endpoint for real-time updates
+# @app.websocket("/ws/agents")
+# async def websocket_endpoint(websocket: WebSocket):
+#     await manager.connect(websocket)
+#     try:
+#         print("Connection Established")
+#         while True:
+#             # Your logic to send data to the client
+#             data = {
+#                 "targets": targets_data,
+#                 "obstacles": obstacles_data,
+#                 "agents": agents_data,
+#                 "agent_detections": agent_detections_data
+#             }
 
-            await manager.send_data(data, websocket)
-            await asyncio.sleep(0.01)  # Control how often you send data
-    except WebSocketDisconnect:
-        print("Connection Closed")
-        manager.disconnect(websocket)
+#             await manager.send_data(data, websocket)
+#             await asyncio.sleep(0.01)  # Control how often you send data
+#     except WebSocketDisconnect:
+#         print("Connection Closed")
+#         manager.disconnect(websocket)
 
 # Start the simulation on a button click
-@app.post("/api/start_simulation")
+@app.post("/api/py/start_simulation")
 async def start_simulation():
     global simulation_running, simulation_task
     if not simulation_running:
@@ -178,7 +176,7 @@ async def start_simulation():
         return {"status": "Simulation is already running"}
 
 # Stop the simulation on a button click
-@app.post("/api/stop_simulation")
+@app.post("/api/py/stop_simulation")
 async def stop_simulation():
     global simulation_running, simulation_task
     if simulation_running:
@@ -196,6 +194,13 @@ async def stop_simulation():
         return {"status": "Simulation is not running"}
     
 # Optional: API endpoint to get the current state of the simulation
-@app.get("/api/agents")
+@app.get("/api/py/data")
 async def get_agents():
-    return agents_data
+    # Your logic to send data to the client
+    data = {
+        "targets": targets_data,
+        "obstacles": obstacles_data,
+        "agents": agents_data,
+        "agent_detections": agent_detections_data
+    }
+    return data
