@@ -1,6 +1,6 @@
 import numpy as np
 
-from .config import TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, MAP_WIDTH, MAP_HEIGHT
+from ..config import TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, MAP_WIDTH, MAP_HEIGHT
 
 def get_height_at_position(x, y):
     """Fetch the height using bilinear interpolation at the given screen position (x, y)."""

@@ -1,8 +1,8 @@
 import random
 import numpy as np
 
-from .utils import get_gradient_at_position
-from .config import ENV_WIDTH, ENV_HEIGHT, MAX_SPEED, MAX_FORCE, RADIUS
+from ..lib.utils import get_gradient_at_position
+from ..config import ENV_WIDTH, ENV_HEIGHT, MAX_SPEED, MAX_FORCE, RADIUS
 
 class Agent:
     def __init__(self, agent_id, position, target_id):

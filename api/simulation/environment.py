@@ -3,7 +3,7 @@ from .obstacle import Obstacle
 from .agent import Agent
 import numpy as np
 
-from .utils import get_height_at_position
+from ..lib.utils import get_height_at_position
 
 # def create_height_map_surface():
 #     """Create a surface representation of the height map."""

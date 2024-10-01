@@ -3,9 +3,9 @@ from fastapi import FastAPI, WebSocket, BackgroundTasks, WebSocketDisconnect
 import asyncio
 import random
 
-from .environment import create_targets_from_dict, create_agents_from_dict, create_obstacles_from_dict
-from .maps import hurricane_map, national_park_map, small_town_map
-from .dataProcessing import map_to_json, filter_objects_by_size
+from .simulation.environment import create_targets_from_dict, create_agents_from_dict, create_obstacles_from_dict
+from .simulation.maps import hurricane_map, national_park_map, small_town_map
+from .lib.dataProcessing import map_to_json, filter_objects_by_size
 from .config import ENV_WIDTH, ENV_HEIGHT, NUM_TARGETS, NUM_OBSTACLES, NUM_BOIDS, TARGET_RADIUS, OBSTACLE_RADIUS, ALIGNMENT_WEIGHT, COHESION_WEIGHT, SEPARATION_WEIGHT, TARGET_WEIGHT, OBSTACLE_WEIGHT, TERRAIN_WEIGHT
 
 ### Create FastAPI instance with custom docs and openapi url

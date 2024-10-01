@@ -2,7 +2,7 @@ import openai
 from dotenv import load_dotenv
 import os
 
-from .config import LLM_PROMPT_USER_INPUT, LLM_PROMPT_SYSTEM_RESPONSE
+from ..config import LLM_PROMPT_USER_INPUT, LLM_PROMPT_SYSTEM_RESPONSE
 
 # Load environment variables from .env file
 load_dotenv()
