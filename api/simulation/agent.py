@@ -1,4 +1,3 @@
-import random
 import numpy as np
 
 from ..lib.utils import get_gradient_at_position
@@ -15,7 +14,7 @@ class Agent:
         self.z_position = z  # For 3D simulations
 
     def edges(self):
-        """Keep the agents inside the screen without wrapping."""
+        """Keep the agents inside the environment boundaries."""
         if self.position[0] > ENV_WIDTH:
             self.position[0] = ENV_WIDTH
             self.velocity[0] = 0  # Stop horizontal movement

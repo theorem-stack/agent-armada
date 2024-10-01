@@ -2,7 +2,7 @@ export default function SimulationControl({ status, setStatus }) {
     // Function to start the simulation
     const startSimulation = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/start_simulation', {
+            const response = await fetch('/api/py/start_simulation', {
                 method: 'POST',
             });
             const data = await response.json();
@@ -15,7 +15,7 @@ export default function SimulationControl({ status, setStatus }) {
     // Function to stop the simulation
     const stopSimulation = async () => {
         try {
-            const response = await fetch('http://localhost:8000/api/stop_simulation', {
+            const response = await fetch('/api/py/stop_simulation', {
                 method: 'POST',
             });
             const data = await response.json();
