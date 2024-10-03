@@ -18,10 +18,10 @@ OBSTACLE_WEIGHT = 1.7
 TERRAIN_WEIGHT = 0.13
 
 # DEBUG: Temporary, will be replaced by the LLM identified target and obstacle positions
-NUM_TARGETS = 4  # Number of targets
-TARGET_RADIUS = 10  # Radius for the target area
-NUM_OBSTACLES = 3  # Number of obstacles
-OBSTACLE_RADIUS = 30  # Radius for the obstacles
+NUM_TARGETS = 4
+TARGET_RADIUS = 10
+NUM_OBSTACLES = 3
+OBSTACLE_RADIUS = 30
 
 # DEBUG: Example height map (can be loaded from an external source)
 TERRAIN_HEIGHT_MAP = np.array([

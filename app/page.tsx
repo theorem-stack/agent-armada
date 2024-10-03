@@ -13,7 +13,7 @@ export default function Home() {
     
     <div>
       <main>
-        <h1>Welcome to Three.js with Next.js!</h1>
+        <h1>Multi-Agent Swarm Demo</h1>
         <ThreeScene />
         <SimulationControl status={status} setStatus={setStatus} />
       </main>

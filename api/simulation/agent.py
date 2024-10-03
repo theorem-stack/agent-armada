@@ -158,13 +158,13 @@ class Agent:
         gradient = get_gradient_at_position(self.position[0], self.position[1])
         
         # Adjust velocity or position based on the slope of the terrain
-        slope_factor = -0.1  # Scale the slope effect (negative to move against steep terrain)
-        terrain_steering = gradient * slope_factor  # Adjust force based on slope
+        slope_factor = -0.1  # Negative slope for uphill movement
+        terrain_steering = gradient * slope_factor
 
         # Weigh these forces to balance the behavior
         self.apply_force(alignment * alignment_weight)
         self.apply_force(cohesion * cohesion_weight)
         self.apply_force(separation * separation_weight)
-        self.apply_force(target_steering * target_weight)  # Influence towards the target
-        self.apply_force(obstacle_steering * obstacle_weight)  # Avoid obstacles
-        self.apply_force(terrain_steering * terrain_weight)  # Adjust for terrain slope
+        self.apply_force(target_steering * target_weight)
+        self.apply_force(obstacle_steering * obstacle_weight)
+        self.apply_force(terrain_steering * terrain_weight)
