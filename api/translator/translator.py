@@ -1,31 +1,11 @@
 from SimplePythonInterpreter import SimplePythonInterpreter
 from SimplePythonValidator import SimplePythonValidator
 
-def main():
-    # Sample input: a simple function with if statements and logical operators
-    code = """
-    def check_even_or_odd(n):
-        if n % 2 == 0:
-            return "Even"
-        else:
-            return "Odd"
-
-    def filter_even_numbers(numbers):
-        even_numbers = []
-        for num in numbers:
-            if num % 2 == 0:
-                even_numbers.append(num)
-        return even_numbers
-
-    def object_test(objects, N):
-        for obj in objects:
-            if obj['type'] == 'cube':
-                obj['volume'] = N ** 3
-            elif obj['type'] == 'sphere':
-                obj['volume'] = (4 / 3) * 3.14 * (N ** 3)
-        return objects
+def translate(code):
     """
-
+    Translates the given code to another language.
+    """
+    
     # Validate the code
     validator = SimplePythonValidator()
     if validator.validate(code):
@@ -56,6 +36,33 @@ def main():
             print("Function 'filter_even_numbers' not found in local scope.")
     else:
         print("Code validation failed.")
+
+def main():
+    # Sample input: a simple function with if statements and logical operators
+    code = """
+    def check_even_or_odd(n):
+        if n % 2 == 0:
+            return "Even"
+        else:
+            return "Odd"
+
+    def filter_even_numbers(numbers):
+        even_numbers = []
+        for num in numbers:
+            if num % 2 == 0:
+                even_numbers.append(num)
+        return even_numbers
+
+    def object_test(objects, N):
+        for obj in objects:
+            if obj['type'] == 'cube':
+                obj['volume'] = N ** 3
+            elif obj['type'] == 'sphere':
+                obj['volume'] = (4 / 3) * 3.14 * (N ** 3)
+        return objects
+    """
+
+    translate(code)
 
 if __name__ == "__main__":
     main()

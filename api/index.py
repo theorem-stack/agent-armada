@@ -56,7 +56,11 @@ async def start_simulation():
     global simulation_running, simulation_task
     if not simulation_running:
         simulation_running = True
-        simulation_task = asyncio.create_task(run_simulation())  # Run the simulation in the background
+
+        #DEBUG: Temporary mission statement
+        user_mission_statement = "Find the survivors and avoid the obstacles."
+
+        simulation_task = asyncio.create_task(run_simulation(user_mission_statement))  # Run the simulation in the background
         return {"status": "Simulation started"}
     else:
         return {"status": "Simulation is already running"}
