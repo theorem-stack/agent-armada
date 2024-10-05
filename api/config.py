@@ -34,8 +34,34 @@ TERRAIN_HEIGHT_MAP = np.array([
 MAP_WIDTH, MAP_HEIGHT = TERRAIN_HEIGHT_MAP.shape
 
 # LLM PARAMETERS
-LLM_MISSION_STATEMENT_PROMPT = "You are a helpful AI mission controller. Your job is to provide detailed, multi-step plans to help users achieve their goals. Each step in your plan must include an accurate and concise python function."
-LLM_PROMPT_SYSTEM_RESPONSE = "The benefits of exercise include improved cardiovascular health, increased muscle strength and endurance, better flexibility and balance, and enhanced mood and mental well-being. Regular exercise can also help with weight management, reduce the risk of chronic diseases, and improve overall quality of life."
+
+LLM_PROMPT_SYSTEM_RESPONSE = "Hello World."
 OPENAI_MODEL = "gpt-3.5-turbo-0125"
-MAX_TOKENS = 150
+MAX_TOKENS = 600
 TEMPERATURE = 0.7
+
+LLM_MISSION_STATEMENT_PROMPT = """
+You are a mission planner for a swarm of autonomous agents. Your job is to interpret the user's mission statement into a multi-step plan for the agents to follow.
+Each step should include the following:
+    1. Objective: The goal of the step
+    2. Action Code: The Python code to execute the step
+
+Object = {
+    "type": "", # Barn, Building, Car, Tree, etc.
+    "position": [x, y],
+    "radius": r
+}
+
+N = Number of agents
+Objects = List of Object
+bbox = [x1, y1, x2, y2] # Bounding box for the map
+
+def mission_action(N:int, Objects:List[Object], BBox:List[int]) -> List[Tuple[int, int]]:
+    # Your action code here
+    
+    # Return a list of (x, y) coordinates, of length N, for the agents to move to
+
+Make sure each step is a well defined python function with the above specified inputs and outputs. Each Python function should be a self-contained step that the agents can execute.
+Python functions should not should not call other functions or rely on external state. Each function should be able to run independently.
+
+"""

@@ -1,4 +1,5 @@
 import numpy as np
+import re
 
 from ..config import TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, MAP_WIDTH, MAP_HEIGHT
 
@@ -44,3 +45,17 @@ def get_gradient_at_position(x, y):
     
         # Return gradient vector (influence on X and Y)
         return np.array([dx, dy], dtype=float)
+
+def parse_llm_response(llm_response: str) -> dict:
+    # Step 1: Extract the step description using regex
+    step_match = re.search(r'(Step \d+: .+)', llm_response)
+    step = step_match.group(1) if step_match else "Step description not found"
+    
+    # Step 2: Extract the Python code block
+    python_code_match = re.search(r'```python\n([\s\S]+?)```', llm_response)
+    python_code = python_code_match.group(1) if python_code_match else "Python code not found"
+    
+    return {
+        "step": step,
+        "python_code": python_code
+    }

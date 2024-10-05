@@ -33,7 +33,7 @@ async def OpenAI_API_CALL(user_mission_statement):
         )
 
         # Extract the response content
-        ai_response = response['choices'][0]['message']['content'].strip()
+        ai_response = response.choices[0].message.content
         return ai_response
 
     except Exception as e:
@@ -53,14 +53,12 @@ async def LLM_Planning(user_mission_statement, satellite_map):
     llm_mission_input = json.dumps(input_data)
 
     # Get the LLM plan
-    actions = await OpenAI_API_CALL(user_mission_statement)
-
-    print(actions)
+    llm_response = await OpenAI_API_CALL(user_mission_statement)
 
     # Execute the LLM plan ---------------------
-    targets = []
+    # targets = []
     # for action in actions:
     #     translation = translate(action)
     #     targets.append(translation)
 
-    return targets
+    return llm_response
