@@ -34,6 +34,8 @@ class MissionInput(BaseModel):
 async def receive_mission_input(mission_input: MissionInput):
     print(f"Received mission: {mission_input.user_mission_statement}")
 
+    # Terrain Map Using MapBox API / OpenStreetMap API
+
     # Process Satellite Map
     detailed_map = hurricane_map # Detailed Exact Map (use for environment representation)
 

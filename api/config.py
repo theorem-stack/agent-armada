@@ -36,6 +36,6 @@ MAP_WIDTH, MAP_HEIGHT = TERRAIN_HEIGHT_MAP.shape
 # LLM PARAMETERS
 LLM_MISSION_STATEMENT_PROMPT = "You are a helpful AI mission controller. Your job is to provide detailed, multi-step plans to help users achieve their goals. Each step in your plan must include an accurate and concise python function."
 LLM_PROMPT_SYSTEM_RESPONSE = "The benefits of exercise include improved cardiovascular health, increased muscle strength and endurance, better flexibility and balance, and enhanced mood and mental well-being. Regular exercise can also help with weight management, reduce the risk of chronic diseases, and improve overall quality of life."
-OPENAI_MODEL = "gpt-3.5-turbo"
+OPENAI_MODEL = "gpt-3.5-turbo-0125"
 MAX_TOKENS = 150
 TEMPERATURE = 0.7
