@@ -1,0 +1,15 @@
+version: '3'
+services:
+  aa_ros:
+    build: .
+    container_name: aa_ros_container
+    volumes:
+      - .:/root/ros2_ws/src/aa_ros
+    environment:
+      - DISPLAY=10.0.0.71:0  # Replace with your actual IP address
+      - QT_X11_NO_MITSHM=1
+    network_mode: "host"
+    stdin_open: true
+    tty: true 
+    command: /bin/bash -c "tail -f /dev/null"
+    privileged: true # required for our ROS node to talk to FastAPI
