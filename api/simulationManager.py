@@ -1,12 +1,8 @@
 import asyncio
 import random
+import json
 
 from .simulation.environment import create_targets_from_dict, create_agents_from_dict, create_obstacles_from_dict
-from .lib.dataProcessing import map_to_json, filter_objects_by_size
-from .simulation.maps import hurricane_map
-from .llm import LLM
-from .translator import translate
-
 from .config import ENV_WIDTH, ENV_HEIGHT, NUM_TARGETS, NUM_OBSTACLES, NUM_AGENTS, TARGET_RADIUS, OBSTACLE_RADIUS, ALIGNMENT_WEIGHT, COHESION_WEIGHT, SEPARATION_WEIGHT, TARGET_WEIGHT, OBSTACLE_WEIGHT, TERRAIN_WEIGHT
 
 # Global variable to hold the state of the simulation
@@ -15,31 +11,13 @@ targets_data = {}
 obstacles_data = {}
 agent_detections_data = {}
 
-async def run_simulation(user_mission_statement):
+async def run_simulation():
 
     # Initialize Environment
     global agents_data
     global targets_data
     global obstacles_data
     global agent_detections_data
-
-    # # Detailed Exact Map (use for environment representation)
-    # hurricane_map_representation = map_to_json(hurricane_map)
-
-    # # Course Filtered Map (use as LLM input. Leaves out small objects to be found by agents)
-    # satellite_hurricane_map_objects = filter_objects_by_size(hurricane_map, min_size=10)
-
-    # # LLM Planning ---------------------
-    # # LLM generates a plan based on the user input
-    # # The plan is a sequence of actions that the agents will execute
-    # # Each action is represented as a python function, which outputs numerical values for the agents to follow
-    # actions = LLM(user_mission_statement, "user_input")
-
-    # # Execute the LLM plan ---------------------
-    # targets = []
-    # for action in actions:
-    #     translation = translate(action)
-    #     targets.append(translation)
 
     # DEBUG: Randomly assign target and obstacle positions
     for target_id in range(NUM_TARGETS):

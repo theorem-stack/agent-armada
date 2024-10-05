@@ -85,9 +85,9 @@ const ThreeScene = () => {
             const agentsData = data.agents;
             // const detectionData = data.agent_detections;
 
-            console.log('Received agents data:', agentsData);
-            console.log('Received targets data:', targetsData);
-            console.log('Received obstacles data:', obstaclesData);
+            // console.log('Received agents data:', agentsData);
+            // console.log('Received targets data:', targetsData);
+            // console.log('Received obstacles data:', obstaclesData);
 
             // Create or update targets
             Object.entries(targetsData).forEach(([id, targetData]) => {

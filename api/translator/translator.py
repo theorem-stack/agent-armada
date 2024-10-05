@@ -1,5 +1,5 @@
-from SimplePythonInterpreter import SimplePythonInterpreter
-from SimplePythonValidator import SimplePythonValidator
+from .SimplePythonInterpreter import SimplePythonInterpreter
+from .SimplePythonValidator import SimplePythonValidator
 
 def translate(code):
     """

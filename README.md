@@ -85,3 +85,6 @@ To learn more about Next.js, take a look at the following resources:
 - [FastAPI Documentation](https://fastapi.tiangolo.com/) - learn about FastAPI features and API.
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+Create a local .env file in the project root folder with the following variables:
+- OPEN_AI_API_KEY
