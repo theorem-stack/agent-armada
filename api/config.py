@@ -44,7 +44,7 @@ LLM_MISSION_STATEMENT_PROMPT = """
 You are a mission planner for a swarm of autonomous agents. Your job is to interpret the user's mission statement into a multi-step plan for the agents to follow.
 Each step should include the following:
     1. Objective: The goal of the step
-    2. Action Code: The Python code to execute the step
+    2. Action Function: The Python code to execute the step
 
 Object = {
     "type": "", # Barn, Building, Car, Tree, etc.
@@ -65,3 +65,33 @@ Make sure each step is a well defined python function with the above specified i
 Python functions should not should not call other functions or rely on external state. Each function should be able to run independently.
 
 """
+
+# DEBUG: Example LLM reponse
+
+# LLM Response: Step 1: Move towards the barn
+# Objective: Move the agents towards the barn
+# Action Function: 
+# ```python
+# def move_towards_barn(N:int, Objects:List[Object], BBox:List[int]) -> List[Tuple[int, int]]:
+#     barn = [obj for obj in Objects if obj["type"]=="Barn"][0]
+#     center_x = (BBox[0] + BBox[2]) / 2
+#     center_y = (BBox[1] + BBox[3]) / 2
+#     return [(barn["position"][0] + center_x) / 2, (barn["position"][1] + center_y) / 2] * N
+# ```
+# 
+# Step 2: Surround the barn
+# Objective: Surround the barn by moving around it
+# Action Function: 
+# ```python
+# def surround_barn(N:int, Objects:List[Object], BBox:List[int]) -> List[Tuple[int, int]]:
+#     barn = [obj for obj in Objects if obj["type"]=="Barn"][0]
+#     radius = barn["radius"] + 10  # Add a buffer distance to the barn radius
+#     angle = 0
+#     coordinates = []
+#     for i in range(N):
+#         x = barn["position"][0] + radius * math.cos(angle)
+#         y = barn["position"][1] + radius * math.sin(angle)
+#         coordinates.append((x, y))
+#         angle += 2 * math.pi / N
+#     return coordinates
+# ```
