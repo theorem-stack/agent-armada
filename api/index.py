@@ -8,7 +8,8 @@ from .simulationManager import run_simulation, agents_data, targets_data, obstac
 from .lib.dataProcessing import filter_objects_by_size
 from .simulation.maps import hurricane_map
 from .llm.llm import LLM_Planning
-from .lib.utils import parse_llm_response
+from .translator.translator import translate
+from .config import ENV_WIDTH, ENV_HEIGHT, NUM_AGENTS
 
 ### Create FastAPI instance with custom docs and openapi url
 app = FastAPI(docs_url="/api/py/docs", openapi_url="/api/py/openapi.json")
@@ -41,15 +42,15 @@ async def receive_mission_input(mission_input: MissionInput):
     # Process Satellite Map
     detailed_map = hurricane_map # Detailed Exact Map (use for environment representation)
 
-    satellite_map = filter_objects_by_size(hurricane_map, min_size=10) # Course Filtered Map (Use as LLM input. Leaves out small objects to be found by agents)
+    satellite_map_objects = filter_objects_by_size(hurricane_map, min_size=10) # Course Filtered Map (Use as LLM input. Leaves out small objects to be found by agents)
 
     # Call the LLM Planning function
-    llm_response = await LLM_Planning(mission_input.user_mission_statement, satellite_map)
+    mission_statement = mission_input.user_mission_statement
+    N = NUM_AGENTS
+    BBox = [0, 0, ENV_WIDTH, ENV_HEIGHT]
+    llm_plan = await LLM_Planning(mission_statement, N, satellite_map_objects, BBox)
 
-    print(f"LLM Response: {llm_response}")
-
-    output_dict = parse_llm_response(llm_response)
-    print(output_dict)
+    print(llm_plan)
 
     # Here, you'd process the mission statement or queue it for the simulation
     return {"message": f"Mission '{mission_input.user_mission_statement}' received!"}
