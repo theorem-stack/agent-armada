@@ -154,7 +154,7 @@ const ThreeScene = () => {
                 const {
                     target_id,
                     position,
-                    z_positon,
+                    z_position,
                     velocity,
                     acceleration
                 } = agentData;
@@ -170,7 +170,7 @@ const ThreeScene = () => {
                         id,
                         target_id,
                         pos,
-                        z_positon,
+                        z_position,
                         velocity,
                         acceleration,
                         getColorBySwarmId(target_id)

@@ -74,7 +74,7 @@ async def run_simulation():
             agents_data[agent.id] = {
                 "target_id": agent.target_id, # Swarm identifier
                 "position": agent.position.copy().tolist(),  # Convert numpy array to list
-                "z_positon": agent.z_position,  # For 3D simulations
+                "z_position": agent.z_position,  # For 3D simulations
                 "velocity": agent.velocity.tolist(),  # 2D vector for velocity
                 "acceleration": agent.acceleration.tolist(),  # Initialize acceleration to zero
             }
