@@ -13,8 +13,23 @@ def map_to_dict(map_objects):
         })
     return map_representation
 
-def map_to_json(map_objects):
-    return json.dumps(map_to_dict(map_objects), indent=4)
+def map_to_string(map_objects):
+    """
+    Converts a list of mapObject instances into a string where each object is on a new line.
+
+    Parameters:
+    - map_objects: List of mapObject instances.
+
+    Returns:
+    - A string representation of all mapObjects, each on a new line.
+    """
+    # Use a list comprehension to create a list of string representations of each mapObject
+    map_objects_lines = [obj.__repr__() for obj in map_objects]
+    
+    # Join the list into a single string with new lines
+    map_objects_string = "\n".join(map_objects_lines)
+    
+    return map_objects_string
 
 def calculate_area(bounding_box):
     """Calculate the area of a bounding box given by two points ((x1, y1), (x2, y2))."""

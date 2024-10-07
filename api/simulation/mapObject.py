@@ -11,3 +11,13 @@ class mapObject:
 
     def __repr__(self):
         return f"mapObject(name={self.name}, position={self.position}, boundingBox={self.boundingBox}, type={self.object_type}, condition={self.condition}, properties={self.properties})"
+
+    def convert_to_dict(self):
+        return {
+            "name": self.name,
+            "position": self.position.tolist(),
+            "boundingBox": self.boundingBox,
+            "object_type": self.object_type,
+            "condition": self.condition,
+            "properties": self.properties
+        }

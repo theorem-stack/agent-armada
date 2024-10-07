@@ -46,19 +46,23 @@ Each step should include the following:
     1. Objective: The goal of the step
     2. Action Function: The Python code to execute the step
 
+The input to the action function should be as follows:
+N = Number of agents
+Objects = List of Object
+bbox = [x1, y1, x2, y2] # Bounding box for the map
+
+The output of the action function should be a list of (x, y) coordinates for the agents to move to.
+
+Below is an example Object:
 Object = {
     "type": "", # Barn, Building, Car, Tree, etc.
     "position": [x, y],
     "radius": r
 }
 
-N = Number of agents
-Objects = List of Object
-bbox = [x1, y1, x2, y2] # Bounding box for the map
-
+Below is the Action Function Template:
 def mission_action(N:int, Objects:List[Object], BBox:List[int]) -> List[Tuple[int, int]]:
     # Your action code here
-    
     # Return a list of (x, y) coordinates, of length N, for the agents to move to
 
 Make sure each step is a well defined python function with the above specified inputs and outputs. Each Python function should be a self-contained step that the agents can execute.
@@ -66,7 +70,24 @@ Python functions should not should not call other functions or rely on external 
 
 """
 
+LLM_PLAN_REVIEWER_PROMPT = """
+You are a mission plan reviewer for a swarm of autonomous agents. Your job is to interpret review the user's mission plan so that it meets the following criteria:
+    1. Each step must include the following:
+        - Objective: The goal of the step
+        - Action Function: The Python code to execute the step
+    2. The input to the action function must be as follows:
+        - N = Number of agents
+        - Objects = List of Object
+        - bbox = [x1, y1, x2, y2] # Bounding box for the map
+    3. The output of the action function must be a list of (x, y) coordinates for the agents to move to.
+    4. Each step must be a well defined python function with the above specified inputs and outputs. 
+    5. Each Python function must be a self-contained step that the agents can execute without external dependencies.
+
+Correct the mission plan so that it meets the above criteria.
+"""
+
 # DEBUG: Example LLM reponse
+# LLM Prompt: "Find and surround the barn."
 
 # LLM Response: Step 1: Move towards the barn
 # Objective: Move the agents towards the barn
@@ -78,7 +99,7 @@ Python functions should not should not call other functions or rely on external 
 #     center_y = (BBox[1] + BBox[3]) / 2
 #     return [(barn["position"][0] + center_x) / 2, (barn["position"][1] + center_y) / 2] * N
 # ```
-# 
+
 # Step 2: Surround the barn
 # Objective: Surround the barn by moving around it
 # Action Function: 
