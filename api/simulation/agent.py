@@ -12,6 +12,7 @@ class Agent:
         self.acceleration = np.zeros(2, dtype=float)  # Initialize acceleration to zero
         self.target_id = target_id  # Swarm identifier
         self.z_position = z  # For 3D simulations
+        self.role = None  # Role assigned to the agent
 
     def edges(self):
         """Keep the agents inside the environment boundaries."""
