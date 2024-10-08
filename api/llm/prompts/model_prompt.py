@@ -1,4 +1,4 @@
-LARGE_MODEL_PROMPT = """
+MODEL_PROMPT = """
 You are a mission planner for a swarm of autonomous agents. Your job is to interpret the user's mission statement into a multi-step plan for the agents to follow.
 Generate a multi-step plan where each step accomplishes a specific objective for N agents within a bounding box. Each step should include:
 
@@ -36,13 +36,24 @@ Python functions should not should not call other functions, should not import l
 Example Response YAML Structure:
 steps:
   - step: 1
-    objective: "Move all agents to the center of the bounding box."
+    function_type: "role"
+    objective: "Assign roles to agents in an alternating pattern of scout and leader."
     python_function: |
-      def move_to_center(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
-          center_x = (BBox[0] + BBox[2]) / 2
-          center_y = (BBox[1] + BBox[3]) / 2
-          return [(center_x, center_y) for _ in range(N)]
+      def assign_roles(N: int, Objects: list, BBox: list[int]) -> list[str]:
+          roles = ["scout", "leader"]
+          return [roles[i % 2] for i in range(N)]  # Alternating scout/leader
+
   - step: 2
+    function_type: "group"
+    task_type: "Divide into Teams"
+    objective: "Divide agents into two teams, alpha and beta, alternating between them."
+    python_function: |
+      def assign_groups(N: int, Objects: list, BBox: list[int]) -> list[str]:
+          groups = ["alpha", "beta"]
+          return [groups[i % 2] for i in range(N)]  # Alternating between groups
+
+  - step: 3
+    function_type: "coordinates"
     objective: "Distribute the agents in a circular formation around the center."
     python_function: |
       def form_circle(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
@@ -58,5 +69,5 @@ steps:
               coordinates.append((x, y))
           return coordinates
 
-Please generate a plan with steps following this YAML structure.
+Please generate a plan with steps following this YAML structure. You must not include additional comments outside the YAML structure. Only return the YAML structure with the steps.
 """

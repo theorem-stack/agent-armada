@@ -1,4 +1,8 @@
 import numpy as np
+from pathlib import Path
+
+# Define the base directory
+BASE_DIR = Path(__file__).resolve().parent
 
 # SIMULATION ENVIRONMENT PARAMETERS
 ENV_WIDTH, ENV_HEIGHT = 800, 600
@@ -10,11 +14,11 @@ MAX_FORCE = 0.1
 RADIUS = 100  # Perception radius for alignment, cohesion, separation
 
 # AGENT BEHAVIOR PARAMETERS
-ALIGNMENT_WEIGHT = 1.0
-COHESION_WEIGHT = 1.2
-SEPARATION_WEIGHT = 1.2
-TARGET_WEIGHT = 1.3
-OBSTACLE_WEIGHT = 1.7
+ALIGNMENT_WEIGHT = 0
+COHESION_WEIGHT = 0
+SEPARATION_WEIGHT = 0
+TARGET_WEIGHT = 1.5
+OBSTACLE_WEIGHT = 0
 TERRAIN_WEIGHT = 0.13
 
 # DEBUG: Temporary, will be replaced by the LLM identified target and obstacle positions
@@ -33,8 +37,10 @@ TERRAIN_HEIGHT_MAP = np.array([
 ])
 MAP_WIDTH, MAP_HEIGHT = TERRAIN_HEIGHT_MAP.shape
 
-# LLM PARAMETERS
+# EVALUATION PARAMETERS
+EVAL_TOLERANCE = 10
 
+# LLM PARAMETERS
 LLM_PROMPT_SYSTEM_RESPONSE = "Hello World."
 OPENAI_MODEL = "gpt-3.5-turbo-0125"
 MAX_TOKENS = 600

@@ -105,12 +105,14 @@ def parse_yaml_steps(yaml_string: str) -> Dict[str, Any]:
         for step in steps:
             # Extract step number, objective, and action function
             step_number = step.get("step")
+            function_type = step.get("function_type")
             objective = step.get("objective")
             action_function = step.get("python_function").strip()  # Remove extra spaces
             
             # Store the parsed step details
             parsed_steps[step_number] = {
                 "step": step_number,
+                "function_type": function_type,
                 "objective": objective,
                 "python_function": action_function
             }

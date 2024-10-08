@@ -1,0 +1,90 @@
+{
+    "1": {
+        "step": 1,
+        "function_type": "coordinates",
+        "objective": "Agents form a circle around the center of the map.",
+        "python_function": "def circle_formation(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:\n    import math\n    center_x = (BBox[0] + BBox[2]) / 2\n    center_y = (BBox[1] + BBox[3]) / 2\n    radius = min(BBox[2] - BBox[0], BBox[3] - BBox[1]) / 4  # Circle radius is 1/4 of the smallest BBox dimension\n    coordinates = []\n    for i in range(N):\n        angle = 2 * math.pi * i / N\n        x = center_x + radius * math.cos(angle)\n        y = center_y + radius * math.sin(angle)\n        coordinates.append((x, y))\n    return coordinates",
+        "coordinates": [
+            [
+                550.0,
+                300.0
+            ],
+            [
+                542.658477444273,
+                346.3525491562421
+            ],
+            [
+                521.3525491562422,
+                388.167787843871
+            ],
+            [
+                488.167787843871,
+                421.3525491562421
+            ],
+            [
+                446.3525491562421,
+                442.658477444273
+            ],
+            [
+                400.0,
+                450.0
+            ],
+            [
+                353.6474508437579,
+                442.65847744427305
+            ],
+            [
+                311.83221215612906,
+                421.3525491562421
+            ],
+            [
+                278.6474508437579,
+                388.167787843871
+            ],
+            [
+                257.341522555727,
+                346.3525491562421
+            ],
+            [
+                250.0,
+                300.0
+            ],
+            [
+                257.3415225557269,
+                253.64745084375795
+            ],
+            [
+                278.6474508437579,
+                211.83221215612906
+            ],
+            [
+                311.832212156129,
+                178.6474508437579
+            ],
+            [
+                353.64745084375784,
+                157.34152255572698
+            ],
+            [
+                400.0,
+                150.0
+            ],
+            [
+                446.3525491562421,
+                157.34152255572695
+            ],
+            [
+                488.16778784387094,
+                178.64745084375787
+            ],
+            [
+                521.352549156242,
+                211.832212156129
+            ],
+            [
+                542.658477444273,
+                253.64745084375787
+            ]
+        ]
+    }
+}

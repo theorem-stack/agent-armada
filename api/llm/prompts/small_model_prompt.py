@@ -1,3 +1,0 @@
-SMALL_MODEL_PROMPT = """
-
-"""

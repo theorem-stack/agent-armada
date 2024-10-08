@@ -1,4 +1,5 @@
 import ast
+import re
 
 class SimplePythonValidator:
     def __init__(self):
@@ -8,6 +9,16 @@ class SimplePythonValidator:
             'append',       # Allow list append method
             'len',          # Allow len function
             'sum',          # Allow sum function
+            'min',          # Allow min function
+            'max',          # Allow max function
+            'abs',          # Allow abs function
+            'math',         # Allow math module
+            'cos',          # Allow cos function
+            'sin',          # Allow sin function
+            'sqrt',         # Allow sqrt function
+            'random',       # Allow random module
+            'uniform',      # Allow random.uniform function
+            'choice',       # Allow random.choice function
         }
         
     def validate(self, code):

@@ -1,7 +1,8 @@
 PROMPT_FUNCTION_EXAMPLES = """
 - id: 1
+  function_type: "coordinates"
   task_type: "Move Towards Center"
-  description: "Agents move towards the center of the map."
+  objective: "Agents move towards the center of the map."
   python_function: |
     def move_towards_center(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         center_x = (BBox[0] + BBox[2]) / 2
@@ -9,8 +10,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return [(center_x, center_y)] * N
 
 - id: 2
+  function_type: "coordinates"
   task_type: "Avoid Object"
-  description: "Agents avoid the largest object on the map by moving to the opposite side of the map."
+  objective: "Agents avoid the largest object on the map by moving to the opposite side of the map."
   python_function: |
     def avoid_largest_object(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         largest_object = max(Objects, key=lambda obj: obj["radius"])
@@ -19,8 +21,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return [(opposite_x, opposite_y)] * N
 
 - id: 3
+  function_type: "coordinates"
   task_type: "Spread Out"
-  description: "Agents spread out evenly in a line along the x-axis within the bounding box."
+  objective: "Agents spread out evenly in a line along the x-axis within the bounding box."
   python_function: |
     def spread_out_in_line(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         x_min, x_max = BBox[0], BBox[2]
@@ -29,8 +32,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return [(x_min + i * step, y_coord) for i in range(N)]
 
 - id: 4
+  function_type: "coordinates"
   task_type: "Move Towards Closest Tree"
-  description: "Agents move towards the closest tree on the map."
+  objective: "Agents move towards the closest tree on the map."
   python_function: |
     def move_towards_tree(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         trees = [obj for obj in Objects if obj["object_type"] == "Tree"]
@@ -42,8 +46,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return [tuple(closest_tree["position"])] * N
 
 - id: 5
+  function_type: "coordinates"
   task_type: "Distribute Along Bounding Box Perimeter"
-  description: "Agents are distributed along the bounding box perimeter edges evenly."
+  objective: "Agents are distributed along the bounding box perimeter edges evenly."
   python_function: |
     def patrol_bbox_perimeter(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         perimeter_length = 2 * ((BBox[2] - BBox[0]) + (BBox[3] - BBox[1]))
@@ -67,16 +72,18 @@ PROMPT_FUNCTION_EXAMPLES = """
         return coordinates
 
 - id: 6
+  function_type: "coordinates"
   task_type: "Guard Bounding Box Corners"
-  description: "Agents move to the four corners of the bounding box, dividing evenly between them."
+  objective: "Agents move to the four corners of the bounding box, dividing evenly between them."
   python_function: |
     def guard_bbox_corners(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         corners = [(BBox[0], BBox[1]), (BBox[2], BBox[1]), (BBox[2], BBox[3]), (BBox[0], BBox[3])]
         return [corners[i % 4] for i in range(N)]
 
 - id: 7
+  function_type: "coordinates"
   task_type: "Even Distribution Along Bounding Box Perimeter"
-  description: "Agents distribute evenly along the bounding box perimeter, ensuring uniform spacing."
+  objective: "Agents distribute evenly along the bounding box perimeter, ensuring uniform spacing."
   python_function: |
     def even_distribution_bbox_perimeter(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         perimeter_length = 2 * ((BBox[2] - BBox[0]) + (BBox[3] - BBox[1]))
@@ -101,8 +108,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return coordinates
 
 - id: 8
+  function_type: "coordinates"
   task_type: "Form a Circle"
-  description: "Agents form a circle around the center of the map."
+  objective: "Agents form a circle around the center of the map."
   python_function: |
     def circle_formation(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         import math
@@ -118,8 +126,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return coordinates
 
 - id: 9
+  function_type: "coordinates"
   task_type: "Form a Square"
-  description: "Agents form a square shape within the bounding box."
+  objective: "Agents form a square shape within the bounding box."
   python_function: |
     def form_square(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         side_length = min((BBox[2] - BBox[0]), (BBox[3] - BBox[1])) / 2
@@ -143,8 +152,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return coordinates
 
 - id: 10
+  function_type: "coordinates"
   task_type: "Form a Triangle"
-  description: "Agents form a triangle within the bounding box."
+  objective: "Agents form a triangle within the bounding box."
   python_function: |
     def form_triangle(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         top_x = (BBox[0] + BBox[2]) / 2
@@ -163,8 +173,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return coordinates
 
 - id: 11
+  function_type: "coordinates"
   task_type: "Form the Letter 'L'"
-  description: "Agents form the letter 'L' shape inside the bounding box."
+  objective: "Agents form the letter 'L' shape inside the bounding box."
   python_function: |
     def form_letter_L(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         height = BBox[3] - BBox[1]
@@ -183,8 +194,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return coordinates
 
 - id: 12
+  function_type: "coordinates"
   task_type: "Form the Letter 'T'"
-  description: "Agents form the letter 'T' shape inside the bounding box."
+  objective: "Agents form the letter 'T' shape inside the bounding box."
   python_function: |
     def form_letter_T(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         vertical_count = N // 2
@@ -205,8 +217,9 @@ PROMPT_FUNCTION_EXAMPLES = """
         return coordinates
 
 - id: 13
+  function_type: "coordinates"
   task_type: "Form a Star"
-  description: "Agents form a star shape within the bounding box."
+  objective: "Agents form a star shape within the bounding box."
   python_function: |
     def form_star(N: int, Objects: list, BBox: list[int]) -> list[tuple[int, int]]:
         import math
@@ -222,4 +235,22 @@ PROMPT_FUNCTION_EXAMPLES = """
             y = center_y + radius * math.sin(angle)
             coordinates.append((x, y))
         return coordinates
+
+- id: 14
+  function_type: "role"
+  task_type: "Assign Scout and Leader"
+  objective: "Assign roles to agents in an alternating pattern of scout and leader."
+  python_function: |
+    def assign_roles(N: int, Objects: list, BBox: list[int]) -> list[str]:
+        roles = ["scout", "leader"]
+        return [roles[i % 2] for i in range(N)]  # Alternating scout/leader
+
+- id: 15
+  function_type: "group"
+  task_type: "Divide into Teams"
+  objective: "Divide agents into two teams, alpha and beta, alternating between them."
+  python_function: |
+    def assign_groups(N: int, Objects: list, BBox: list[int]) -> list[str]:
+        groups = ["alpha", "beta"]
+        return [groups[i % 2] for i in range(N)]  # Alternating between groups
 """

@@ -31,7 +31,6 @@ manager = ConnectionManager()
 
 class MissionInput(BaseModel):
     user_mission_statement: str
-    
 
 @app.post("/api/py/mission-input")
 async def receive_mission_input(mission_input: MissionInput):
@@ -48,9 +47,7 @@ async def receive_mission_input(mission_input: MissionInput):
     mission_statement = mission_input.user_mission_statement
     N = NUM_AGENTS
     BBox = [0, 0, ENV_WIDTH, ENV_HEIGHT]
-    llm_plan = await LLM_Planning(mission_statement, N, satellite_map_objects, BBox)
-
-    print(llm_plan)
+    llm_plan_evaluated = await LLM_Planning(mission_statement, N, satellite_map_objects, BBox)
 
     # Here, you'd process the mission statement or queue it for the simulation
     return {"message": f"Mission '{mission_input.user_mission_statement}' received!"}

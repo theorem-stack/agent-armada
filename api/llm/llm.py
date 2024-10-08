@@ -2,13 +2,15 @@ from dotenv import load_dotenv
 import os
 import json
 from openai import OpenAI
+from pathlib import Path
 
 from ..config import LLM_MISSION_STATEMENT_PROMPT, LLM_PLAN_REVIEWER_PROMPT, LLM_PROMPT_SYSTEM_RESPONSE, OPENAI_MODEL, MAX_TOKENS, TEMPERATURE
 from ..translator.translator import translate
 from ..lib.dataProcessing import map_to_string
-from ..lib.utils import read_yaml_to_string, parse_yaml_steps
-from ..llm.prompts.large_model_prompt import LARGE_MODEL_PROMPT
+from ..lib.utils import parse_yaml_steps
+from .prompts.model_prompt import MODEL_PROMPT
 from ..llm.prompts.prompt_function_examples import PROMPT_FUNCTION_EXAMPLES
+from ..config import BASE_DIR
 
 # Load environment variables from .env file
 load_dotenv()
@@ -50,20 +52,47 @@ async def LLM_Planning(user_mission_statement, N, map_objects, BBox):
     # Convert the map objects to list of dictionaries
     map_objects_dict = [obj.convert_to_dict() for obj in map_objects]
 
-    mission_prompt = f"{LARGE_MODEL_PROMPT}\n Function Examples:{PROMPT_FUNCTION_EXAMPLES}\n Context Objects:{satellite_map_string}"
+    mission_prompt = f"{MODEL_PROMPT}\n Function Examples:{PROMPT_FUNCTION_EXAMPLES}\n Context Objects:{satellite_map_string}"
 
-    # # Get the LLM plan
-    llm_response = await OpenAI_API_CALL(user_mission_statement, mission_prompt)
-
-    # print(llm_response)
+    try:
+        # Get the LLM plan
+        llm_response = await OpenAI_API_CALL(user_mission_statement, mission_prompt)
+    except Exception as e:
+        print(f"Error during LLM API call: {e}")
+        return False  # or retry logic
 
     # Parse the YAML string
     parsed_steps = parse_yaml_steps(llm_response)
 
-    # Execute the LLM plan ---------------------
+    # Execute the LLM plan 
     for step_number, step_details in parsed_steps.items():
-        code = step_details["python_function"]
-        target_coordinates = translate(code, N, map_objects_dict, BBox)
-        parsed_steps[step_number]["target_coordinates"] = target_coordinates
 
-    return parsed_steps
+        try:
+            code = step_details["python_function"]
+            function_type = step_details["function_type"]
+
+            # Verify & Evaluate the code
+            step_eval = translate(code, N, map_objects_dict, BBox)
+
+            # Store the evaluated code output
+            if function_type == "role":
+                parsed_steps[step_number]["role"] = step_eval
+            elif function_type == "group":
+                parsed_steps[step_number]["group"] = step_eval
+            elif function_type == "coordinates":
+                parsed_steps[step_number]["coordinates"] = step_eval
+        except Exception as e:
+            print(f"Error during step {step_number}: {e}")
+            return False  # or continue based on the criticality of the step
+
+    # Store the LLM plan
+    llm_plan = parsed_steps.copy()
+
+    # Put the parsed LLM plan into a JSON file
+    file_path = BASE_DIR / "simulation/llm_plan.json"
+    with open(file_path, 'w') as f:
+        json.dump(llm_plan, f, indent=4)
+
+    return True
+
+
