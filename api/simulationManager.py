@@ -19,42 +19,25 @@ async def run_simulation(llm_plan: dict):
     # Initialize Environment
     global agents_data, targets_data, obstacles_data, agent_detections_data, targets, agents
 
-    # ------------------------------------------------
-    # THIS SECTION IS TEMPORARY AND WILL BE REMOVED
-
-    # DEBUG: Randomly assign target and obstacle positions
-    for target_id in range(NUM_TARGETS):
-        targets_data[target_id] = {
-            "position": [random.randint(0, ENV_WIDTH), random.randint(0, ENV_HEIGHT)],
-            "radius": TARGET_RADIUS
-        }
-
-    # DEBUG: Randomly assign agent initial positions and targets
-    target_ids = list(range(NUM_TARGETS))
-    agents_dict = { agent_id: {"target_id": random.choices(target_ids, k=1)[0], "position": [random.randint(0, ENV_WIDTH), random.randint(0, ENV_HEIGHT), 0]} for agent_id in range(NUM_AGENTS) }
-        
-    # ------------------------------------------------
-
-    # Define objects
-    targets = create_targets_from_dict(targets_data)
+    # Initialize the agents at random positions
+    agents_dict = { agent_id: {"target_id": agent_id, "position": [random.randint(0, ENV_WIDTH), random.randint(0, ENV_HEIGHT), 0]} for agent_id in range(NUM_AGENTS) }
     agents = create_agents_from_dict(agents_dict)
-    obstacles = []
 
-    # Main simulation loop
+    targets = []
+    obstacles = []
+    target_positions = []
+
     running = True
-    current_step = 1
     step_completed = True
+    current_step = 1
 
     loop_counter = 0
-    eval_interval = 50  # Number of steps before evaluating the coordinates
+    eval_interval = 50  # Number of steps before evaluating the agent positions
 
-    target_positions = [target.position for target in targets.values()]
-
-    last_step = max(llm_plan.keys())
-
-    print("PLAN STEPS: ", llm_plan.keys())
-
+    # Main simulation loop
     while running:
+
+        # Increment the loop counter
         loop_counter += 1
 
         # Check if we should move to the next step
@@ -62,56 +45,57 @@ async def run_simulation(llm_plan: dict):
             step_data = llm_plan.get(current_step)
 
             if step_data:
-                # Update the targets and agents with the new plan data
+                # Update the targets and agents
                 targets_data, targets = update_targets_from_llm(step_data)
                 target_positions = [target.position for target in targets.values()]
                 agents = update_agents_from_llm(step_data, agents)
                 current_step += 1
                 step_completed = False
 
-        # Clear previous agents data
+        # Clear agent status data
         agents_data.clear()
 
-        for agent in agents:
-            agent.edges()  # Handle screen wrapping
-            agent.flock(agents, targets[agent.target_id], obstacles, 
-                    ALIGNMENT_WEIGHT,
-                    COHESION_WEIGHT,
-                    SEPARATION_WEIGHT,
-                    TARGET_WEIGHT,
-                    OBSTACLE_WEIGHT,
-                    TERRAIN_WEIGHT,
-                )
-            
-            # Update agent position based on velocity
-            agent.update()
+        if agents:
+            for agent in agents:
+                agent.edges()  # Handle screen wrapping
+                agent.flock(agents, targets[agent.target_id], obstacles, 
+                        ALIGNMENT_WEIGHT,
+                        COHESION_WEIGHT,
+                        SEPARATION_WEIGHT,
+                        TARGET_WEIGHT,
+                        OBSTACLE_WEIGHT,
+                        TERRAIN_WEIGHT,
+                    )
+                
+                # Update agent position based on velocity
+                agent.update()
 
-            # Append the agent's ID and position to the agents_data
-            agents_data[agent.id] = {
-                "target_id": agent.target_id, # Swarm identifier
-                "position": agent.position.copy().tolist(),  # Convert numpy array to list
-                "z_positon": agent.z_position,  # For 3D simulations
-                "velocity": agent.velocity.tolist(),  # 2D vector for velocity
-                "acceleration": agent.acceleration.tolist(),  # Initialize acceleration to zero
-            }
-
-            # DEBUG: THIS IS A TEMPORARY IMPLEMENTATION should be map objects
-            if agent.detect(targets[agent.target_id]):
-                agent_detections_data[agent.target_id] = {
-                    "position": targets[agent.target_id].position.copy().tolist(),
+                # Agent status data
+                agents_data[agent.id] = {
+                    "target_id": agent.target_id, # Swarm identifier
+                    "position": agent.position.copy().tolist(),  # Convert numpy array to list
+                    "z_positon": agent.z_position,  # For 3D simulations
+                    "velocity": agent.velocity.tolist(),  # 2D vector for velocity
+                    "acceleration": agent.acceleration.tolist(),  # Initialize acceleration to zero
                 }
 
-        # Check if all agents have reached their targets
-        if loop_counter % eval_interval == 0:
-            agent_positions = [agent.position for agent in agents]
-            step_completed = evaluate_coordinates(agent_positions, target_positions, EVAL_TOLERANCE)
+                # Agent detections
+                if agent.detect(targets[agent.target_id]):
+                    agent_detections_data[agent.target_id] = {
+                        "position": targets[agent.target_id].position.copy().tolist(),
+                    }
 
-            print(f"Step {current_step - 1} completed: {step_completed}")
+            # Check if all agents have reached their targets
+            if loop_counter % eval_interval == 0:
+                agent_positions = [agent.position for agent in agents]
+                step_completed = evaluate_coordinates(agent_positions, target_positions, EVAL_TOLERANCE)
 
-        # Provide progress updates
-        plan_progress[current_step] = step_completed
+                print(f"Step {current_step - 1} completed: {step_completed}")
 
-        await asyncio.sleep(0.01)  # Control the update frequency
+            # Provide progress updates
+            plan_progress[current_step] = step_completed
+
+            await asyncio.sleep(0.01)  # Control the update frequency
 
 def update_targets_from_llm(step_data):
     """Update targets based on the current step of the LLM plan."""
