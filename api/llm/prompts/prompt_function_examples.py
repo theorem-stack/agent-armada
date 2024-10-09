@@ -253,4 +253,39 @@ PROMPT_FUNCTION_EXAMPLES = """
     def assign_groups(N: int, Objects: list, BBox: list[int]) -> list[str]:
         groups = ["alpha", "beta"]
         return [groups[i % 2] for i in range(N)]  # Alternating between groups
+
+- id: 16
+  function_type: "path"
+  task_type: "Vertically Scan the Map"
+  objective: "Agents move vertically along the map, scanning the area."
+  python_function: |
+    def spread_out_in_line_paths(N: int, Objects: list, BBox: list[int], steps: int) -> list[list[tuple[int, int]]]:
+
+        Generate paths for N agents spreading out along the x-axis within the bounding box and moving vertically along the y-axis over time.
+
+        Args:
+            N: Number of agents.
+            Objects: List of agents/objects to spread out (unused in this case but kept for future flexibility).
+            BBox: Bounding box, defined as [x_min, y_min, x_max, y_max].
+            steps: Number of steps (or time points) over which the agents move along the y-axis.
+
+        Returns:
+            A list of paths, where each path is a list of (x, y) coordinates representing the path of each agent over time.
+
+        x_min, x_max = BBox[0], BBox[2]
+        y_min, y_max = BBox[1], BBox[3]
+
+        # Calculate the horizontal step to spread agents evenly along the x-axis
+        x_step = (x_max - x_min) / (N - 1) if N > 1 else 0
+        # Calculate the vertical step size for the y-axis based on the number of steps
+        y_step = (y_max - y_min) / (steps - 1) if steps > 1 else 0
+
+        # For each agent, generate a path of `steps` coordinates that move vertically over time
+        paths = []
+        for i in range(N):
+            agent_x = x_min + i * x_step  # Fixed x position for each agent
+            path = [(agent_x, y_min + step * y_step) for step in range(steps)]  # Vertical movement along y-axis
+            paths.append(path)
+
+        return paths
 """

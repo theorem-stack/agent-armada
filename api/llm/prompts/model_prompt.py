@@ -33,6 +33,11 @@ Object = {
 Make sure each step is a well defined python function with the above specified inputs and outputs. Each Python function should be a self-contained step that the agents can execute.
 Python functions should not should not call other functions, should not import libraries, or rely on external state. Each function should be able to run independently.
 
+There are four types of functions you can use:
+1. "role": Assign roles to agents (e.g., scout, leader, follower).
+2. "group": Divide agents into groups (e.g., alpha, beta, gamma).
+3. "coordinates": Distribute agents in a specific formation (e.g., circle, line, grid).
+
 Example Response YAML Structure:
 steps:
   - step: 1

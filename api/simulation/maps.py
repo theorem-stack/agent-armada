@@ -5,7 +5,7 @@ hurricane_map = [
     mapObject("Home2", [250, 300], ((240, 290), (260, 310)), "building", condition="destroyed"),
     mapObject("Flooded Area", [400, 400], ((350, 350), (450, 450)), "flood", condition="flooded", properties={"water_depth": 2.0}),
     mapObject("Fallen Tree", [180, 120], ((170, 110), (190, 130)), "tree", condition="fallen"),
-    mapObject("Car", [500, 600], ((490, 590), (510, 610)), "vehicle", condition="damaged", properties={"flood_level": 1.0}),
+    mapObject("Car", [700, 300], ((490, 590), (510, 610)), "vehicle", condition="damaged", properties={"flood_level": 1.0}),
     mapObject("Person1", [50, 50], ((40, 40), (60, 60)), "person", condition="injured"),
     mapObject("Person2", [200, 250], ((190, 240), (210, 260)), "person", condition="deceased"),
     mapObject("Person3", [400, 500], ((390, 490), (410, 510)), "person", condition="uninjured"),
@@ -26,3 +26,9 @@ small_town_map = [
     mapObject("Strip Center", [300, 300], ((280, 280), (320, 320)), "building", condition="intact"),
     mapObject("Park", [500, 500], ((480, 480), (520, 520)), "open_land", properties={"has_playground": True}),
 ]
+
+maps = {
+    "hurricane_map": hurricane_map,
+    "national_park_map": national_park_map,
+    "small_town_map": small_town_map,
+}

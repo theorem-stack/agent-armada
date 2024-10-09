@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
+
 
 // Utility function to generate colors based on swarm_id
 function getColorBySwarmId(swarm_id) {
@@ -140,4 +142,81 @@ function convertEnvRadiusToThree(envRadius, envWidth, envHeight, threeWidth, thr
     return adjustedRadius;
 }
 
-export { createRefinedHeightMapTexture, convertEnvPositionToThree, getColorBySwarmId, convertEnvRadiusToThree };
+function createMapObjects(mapObjects, scene) {
+    mapObjects.forEach((mapObject) => {
+        const { name, position, boundingBox, object_type, condition, properties } = mapObject;
+
+        // Convert position to Three.js coordinates
+        const threePosition = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
+
+        // Bounding box dimensions
+        const [[BL_x, BL_y], [TR_x, TR_y]] = boundingBox;
+        const width = TR_x - BL_x;
+        const height = TR_y - BL_y;
+
+        // Scale the bounding box to Three.js coordinates
+        const scaledWidth = (width * THREE_WIDTH) / ENV_WIDTH;
+        const scaledHeight = (height * THREE_HEIGHT) / ENV_HEIGHT;
+
+        let geometry, material, mesh;
+
+        // Define geometry and material based on object type
+        switch (object_type) {
+            case "building":
+                geometry = new THREE.BoxGeometry(scaledWidth, scaledHeight, 1); // Height can be adjusted as needed
+                material = new THREE.MeshStandardMaterial({
+                    color: condition === 'damaged' ? 0xff0000 : 0x00ff00 // Red for damaged, green for intact
+                });
+                break;
+
+            case "flood":
+                geometry = new THREE.PlaneGeometry(scaledWidth, scaledHeight);
+                material = new THREE.MeshStandardMaterial({
+                    color: 0x0000ff,
+                    transparent: true,
+                    opacity: 0.5 // Blue for water
+                });
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(0, 0, -1); // Slightly below the origin
+                break;
+
+            case "tree":
+                geometry = new THREE.CylinderGeometry(scaledWidth / 2, scaledWidth / 2, scaledHeight); // Use scaledWidth for trunk diameter
+                material = new THREE.MeshStandardMaterial({ color: 0x8B4513 }); // Brown
+                break;
+
+            case "vehicle":
+                geometry = new THREE.BoxGeometry(scaledWidth, scaledHeight, 0.5); // Vehicle shape
+                material = new THREE.MeshStandardMaterial({ color: 0x687487 }); // Grayish blue
+                break;
+
+            case "person":
+                geometry = new THREE.SphereGeometry(scaledWidth / 2, 32, 32); // Sphere for person
+                material = new THREE.MeshStandardMaterial({ color: 0xffd700 }); // Gold
+                break;
+
+            default:
+                console.warn(`Unknown object type: ${object_type}`);
+                return; // Skip unknown object types
+        }
+
+        // Create the mesh and apply material
+        if (geometry) {
+            mesh = new THREE.Mesh(geometry, material);
+        }
+
+        // Rotate the mesh if necessary
+        if (object_type === "tree" || object_type === "vehicle" || object_type === "person") {
+            mesh.rotation.x = -Math.PI / 2; // Rotate to lie flat on the x-y plane
+        }
+
+        // Set the object's position in the scene
+        if (mesh) {
+            mesh.position.copy(threePosition);
+            mesh.userData = { name, boundingBox, condition, properties }; // Store additional properties
+            scene.add(mesh); // Add the mesh to the scene
+        }
+    });
+}
+
+export { createRefinedHeightMapTexture, convertEnvPositionToThree, getColorBySwarmId, convertEnvRadiusToThree, createMapObjects };
