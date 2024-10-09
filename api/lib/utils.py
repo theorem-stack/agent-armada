@@ -2,7 +2,7 @@ import numpy as np
 import re
 import math
 import yaml
-from typing import Tuple, Dict, Any
+from typing import Dict, Any
 
 from ..config import TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, MAP_WIDTH, MAP_HEIGHT
 
@@ -126,8 +126,8 @@ def parse_yaml_steps(yaml_string: str) -> Dict[str, Any]:
         print(f"An unexpected error occurred: {e}")
         return []
 
-def evaluate_coordinates(target_coordinates: list[Tuple[int, int]], 
-                         current_coordinates: list[Tuple[int, int]], 
+def evaluate_coordinates(target_coordinates: list[tuple[int, int]], 
+                         current_coordinates: list[tuple[int, int]], 
                          tolerance: float) -> bool:
     """
     Compares a set of target coordinates to the current coordinates with a given tolerance.

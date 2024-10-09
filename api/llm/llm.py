@@ -10,7 +10,6 @@ from ..lib.dataProcessing import map_to_string
 from ..lib.utils import parse_yaml_steps
 from .prompts.model_prompt import MODEL_PROMPT
 from ..llm.prompts.prompt_function_examples import PROMPT_FUNCTION_EXAMPLES
-from ..config import BASE_DIR
 
 # Load environment variables from .env file
 load_dotenv()
@@ -85,14 +84,6 @@ async def LLM_Planning(user_mission_statement, N, map_objects, BBox):
             print(f"Error during step {step_number}: {e}")
             return False  # or continue based on the criticality of the step
 
-    # Store the LLM plan
-    llm_plan = parsed_steps.copy()
-
-    # Put the parsed LLM plan into a JSON file
-    file_path = BASE_DIR / "simulation/llm_plan.json"
-    with open(file_path, 'w') as f:
-        json.dump(llm_plan, f, indent=4)
-
-    return True
+    return parsed_steps.copy()
 
 
