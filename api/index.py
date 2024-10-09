@@ -22,18 +22,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+class MissionInput(BaseModel):
+    user_mission_statement: str
+    
 # Control the simulation state
 simulation_running = False
 simulation_task = None  # To keep track of the running simulation task
 
 manager = ConnectionManager()
 
-class MissionInput(BaseModel):
-    user_mission_statement: str
-
 @app.post("/api/py/mission-input")
 async def receive_mission_input(mission_input: MissionInput):
-    print(f"Received mission: {mission_input.user_mission_statement}")
+    global simulation_running, simulation_task
+
+    # Stop and reset the simulation if it's already running
+    if simulation_running:
+        await stop_simulation()  # Ensure the current simulation is stopped before proceeding
 
     # Process Satellite Map
     detailed_map = hurricane_map  # Detailed Exact Map (for environment representation)
@@ -43,7 +47,7 @@ async def receive_mission_input(mission_input: MissionInput):
     mission_statement = mission_input.user_mission_statement
     N = NUM_AGENTS
     BBox = [0, 0, ENV_WIDTH, ENV_HEIGHT]
-    
+
     try:
         # Get the LLM plan asynchronously
         llm_plan = await LLM_Planning(mission_statement, N, satellite_map_objects, BBox)
@@ -52,19 +56,13 @@ async def receive_mission_input(mission_input: MissionInput):
         return {"status": "Error generating mission plan", "error": str(e)}
 
     if llm_plan:
-        global simulation_running, simulation_task
-
-        if not simulation_running:
-            simulation_running = True
-            # Pass the LLM plan to run_simulation and start the simulation asynchronously
-            simulation_task = asyncio.create_task(run_simulation(llm_plan)) 
-            return {"status": "Simulation started", "mission": mission_input.user_mission_statement}
-        else:
-            return {"status": "Simulation is already running", "mission": mission_input.user_mission_statement}
+        simulation_running = True
+        # Pass the LLM plan to run_simulation and start the simulation asynchronously
+        simulation_task = asyncio.create_task(run_simulation(llm_plan)) 
+        return {"status": "Simulation started", "mission": mission_input.user_mission_statement}
     else:
         # Return an error if the LLM plan could not be generated
         return {"status": "Failed to generate mission plan"}
-
 
 # Start the background task on application startup
 @app.on_event("startup")
@@ -101,14 +99,16 @@ async def stop_simulation():
     if simulation_running:
         simulation_running = False
         if simulation_task:
-            simulation_task.cancel()  # Cancel the running task if needed
+            simulation_task.cancel()  # Cancel the running task if it's active
 
-            # Clear Global Variables
-            agents_data.clear()
-            targets_data.clear()
-            obstacles_data.clear()
-            
-        return {"status": "Simulation stopped"}
+        # Clear Global Variables to reset the environment
+        # agents_data.clear() # Keep the agents data for visualization of sequential requests
+        targets_data.clear()
+        obstacles_data.clear()
+        agent_detections_data.clear()
+        plan_progress.clear()  # Clear progress tracking
+
+        return {"status": "Simulation stopped and reset"}
     else:
         return {"status": "Simulation is not running"}
     
