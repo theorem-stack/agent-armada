@@ -1,20 +1,44 @@
 "use client";
 
 // components/ThreeScene.js
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as THREE from 'three';
 import Agent from './Agent';
 import Target from './Target';
 import Obstacle from './Obstacle';
-import { getColorBySwarmId, createRefinedHeightMapTexture, convertEnvPositionToThree, convertEnvRadiusToThree } from '../lib/helpers';
+import { getColorBySwarmId, createRefinedHeightMapTexture, convertEnvPositionToThree, convertEnvRadiusToThree, createMapObjects } from '../lib/helpers';
 import { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
 import { attachIndicatorsToAgent, updateAgentIndicators } from './visuals/indicators';
 
-const ThreeScene = () => {
+
+const ThreeScene = ({mapName}) => {
     const agentsRef = useRef([]);
     const targetsRef = useRef([]);
     const obstaclesRef = useRef([]);
     const heightMapTexture = createRefinedHeightMapTexture(TERRAIN_HEIGHT_MAP, 8);
+
+    const [mapData, setMap] = useState([]);
+
+    // Load the map data
+    useEffect(() => {
+        const fetchMapData = async () => {
+            try {
+                const response = await fetch(`/api/py/maps/${mapName}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`Error fetching map data: ${errorData.detail || response.statusText}`);
+                }
+
+                const data = await response.json();
+                setMap(data);
+            } catch (error) {
+                console.error("Error fetching map data:", error);
+            }
+        };
+
+        fetchMapData();
+    }, [mapName]);
 
     useEffect(() => {
         // Create a basic Three.js scene
@@ -65,6 +89,9 @@ const ThreeScene = () => {
         );
         scene.add(borderGeometry); // Add the border to the scene
 
+        // Create high level map objects from satellite data
+        createMapObjects(mapData, scene);
+
         // --------------------------------------------------------------
 
         // WebSocket connection
@@ -89,8 +116,7 @@ const ThreeScene = () => {
             // console.log('Received agents data:', agentsData);
             // console.log('Received targets data:', targetsData);
             // console.log('Received obstacles data:', obstaclesData);
-
-            console.log('Received plan progress data:', planProgressData);
+            // console.log('Received plan progress data:', planProgressData);
 
             // Create or update targets
             Object.entries(targetsData).forEach(([id, targetData]) => {
@@ -225,7 +251,7 @@ const ThreeScene = () => {
             document.body.removeChild(renderer.domElement);
         };
 
-    }, []); // Ensure this is an empty dependency array
+    }, [mapData]); // Ensure this is an empty dependency array
 
     return null; // No JSX to render
 };

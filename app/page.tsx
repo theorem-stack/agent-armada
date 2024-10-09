@@ -15,14 +15,13 @@ export default function Home() {
   };
 
   return (
-    
-    <div>
-      <main>
-        <h1>Multi-Agent Swarm Demo</h1>
-        <ThreeScene />
-        <SimulationControl status={status} setStatus={setStatus} />
-        <MissionInput onMissionSubmit={handleMissionSubmit} />
-      </main>
-    </div>
+      <div>
+        <main>
+          <h1>Multi-Agent Swarm Demo</h1>
+          <ThreeScene mapName="hurricane_map" />
+          <SimulationControl status={status} setStatus={setStatus} />
+          <MissionInput onMissionSubmit={handleMissionSubmit} />
+        </main>
+      </div>
   );
 }

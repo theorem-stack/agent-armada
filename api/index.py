@@ -2,11 +2,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import asyncio
 from pydantic import BaseModel
+from typing import List, Any
 
 from .connectionManager import ConnectionManager
 from .simulationManager import run_simulation, agents_data, targets_data, obstacles_data, agent_detections_data, plan_progress
 from .lib.dataProcessing import filter_objects_by_size
-from .simulation.maps import hurricane_map
+from .simulation.maps import maps
 from .llm.llm import LLM_Planning
 from .config import ENV_WIDTH, ENV_HEIGHT, NUM_AGENTS
 
@@ -24,12 +25,32 @@ app.add_middleware(
 
 class MissionInput(BaseModel):
     user_mission_statement: str
+
+# Define a model for map response
+class MapResponse(BaseModel):
+    name: str
+    position: List[float]
+    boundingBox: tuple
+    object_type: str
+    condition: str = None
+    properties: dict = None
     
 # Control the simulation state
 simulation_running = False
 simulation_task = None  # To keep track of the running simulation task
 
 manager = ConnectionManager()
+
+@app.get("/api/py/maps/{map_name}", response_model=List[MapResponse])
+async def get_map(map_name: str):
+    """Get the map data by name."""
+    if map_name in maps:
+            # Process Satellite Map
+        detailed_map = maps[map_name]  # Detailed Exact Map
+        satellite_map_objects = filter_objects_by_size(detailed_map, min_size=10)  # Filter out smaller objects
+        return satellite_map_objects
+    else:
+        return {"status": "Failed to get map data", "error": "Map not found"}
 
 @app.post("/api/py/mission-input")
 async def receive_mission_input(mission_input: MissionInput):
@@ -39,9 +60,9 @@ async def receive_mission_input(mission_input: MissionInput):
     if simulation_running:
         await stop_simulation()  # Ensure the current simulation is stopped before proceeding
 
-    # Process Satellite Map
-    detailed_map = hurricane_map  # Detailed Exact Map (for environment representation)
-    satellite_map_objects = filter_objects_by_size(hurricane_map, min_size=10)  # Filter for larger objects
+    # DEBUG: Use the map from the maps endpoint
+    detailed_map = maps["hurricane_map"]  # Detailed Exact Map (for environment representation)
+    satellite_map_objects = filter_objects_by_size(detailed_map, min_size=10)  # Filter for larger objects
 
     # Call the LLM Planning function
     mission_statement = mission_input.user_mission_statement
@@ -58,7 +79,7 @@ async def receive_mission_input(mission_input: MissionInput):
     if llm_plan:
         simulation_running = True
         # Pass the LLM plan to run_simulation and start the simulation asynchronously
-        simulation_task = asyncio.create_task(run_simulation(llm_plan)) 
+        simulation_task = asyncio.create_task(run_simulation(llm_plan, satellite_map_objects)) 
         return {"status": "Simulation started", "mission": mission_input.user_mission_statement}
     else:
         # Return an error if the LLM plan could not be generated

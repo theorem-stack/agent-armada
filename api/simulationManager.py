@@ -6,6 +6,7 @@ from pathlib import Path
 from .simulation.environment import create_targets_from_dict, create_agents_from_dict, create_obstacles_from_dict
 from .config import ENV_WIDTH, ENV_HEIGHT, NUM_TARGETS, NUM_OBSTACLES, NUM_AGENTS, TARGET_RADIUS, OBSTACLE_RADIUS, ALIGNMENT_WEIGHT, COHESION_WEIGHT, SEPARATION_WEIGHT, TARGET_WEIGHT, OBSTACLE_WEIGHT, TERRAIN_WEIGHT, EVAL_TOLERANCE
 from .lib.utils import evaluate_coordinates
+from .simulation.mapObject import mapObject
 
 # Global variable to hold the state of the simulation
 agents_data = {}
@@ -14,7 +15,7 @@ obstacles_data = {}
 agent_detections_data = {}
 plan_progress = {}
 
-async def run_simulation(llm_plan: dict):
+async def run_simulation(llm_plan: dict, map: list[mapObject]):
 
     # Initialize Environment
     global agents_data, targets_data, obstacles_data, agent_detections_data, targets, agents
@@ -33,6 +34,7 @@ async def run_simulation(llm_plan: dict):
 
     loop_counter = 0
     eval_interval = 50  # Number of steps before evaluating the agent positions
+    agent_detection_eval_interval = 10  # Number of steps before evaluating agent detections
 
     # Main simulation loop
     while running:
@@ -79,13 +81,14 @@ async def run_simulation(llm_plan: dict):
                     "acceleration": agent.acceleration.tolist(),  # Initialize acceleration to zero
                 }
 
-                # Agent detections
-                if agent.detect(targets[agent.target_id]):
-                    agent_detections_data[agent.target_id] = {
-                        "position": targets[agent.target_id].position.copy().tolist(),
-                    }
+                # DEBUG!!!!!!!!!!!!!!!!!!
+                # # Agent detections (Temporary, inefficient implementation)
+                # if loop_counter % agent_detection_eval_interval == 0:
+                #     for object in map:
+                #         if agent.detect(object):
+                #             agent_detections_data[agent.target_id] = object.to_dict()
 
-            # Check if all agents have reached their targets
+            # Check if all agents have reached their targets (Temporary, inefficient implementation)
             if loop_counter % eval_interval == 0:
                 agent_positions = [agent.position for agent in agents]
                 step_completed = evaluate_coordinates(agent_positions, target_positions, EVAL_TOLERANCE)
