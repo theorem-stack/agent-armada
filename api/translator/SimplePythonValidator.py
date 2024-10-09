@@ -19,6 +19,7 @@ class SimplePythonValidator:
             'random',       # Allow random module
             'uniform',      # Allow random.uniform function
             'choice',       # Allow random.choice function
+            'tuple',        # Allow tuple function
         }
         
     def validate(self, code):
