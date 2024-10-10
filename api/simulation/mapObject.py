@@ -8,6 +8,7 @@ class mapObject:
         self.object_type = object_type  # string, type of object (e.g., "building", "tree", "animal", "flood", etc.)
         self.condition = condition  # string, e.g., "damaged", "intact", "flooded", "destroyed"
         self.properties = properties or {}  # dict, optional additional properties such as water level, material, etc.
+        self.detected = False # has object been detected flag
 
     def __repr__(self):
         return f"mapObject(name={self.name}, position={self.position}, boundingBox={self.boundingBox}, type={self.object_type}, condition={self.condition}, properties={self.properties})"
@@ -19,5 +20,6 @@ class mapObject:
             "boundingBox": self.boundingBox,
             "object_type": self.object_type,
             "condition": self.condition,
-            "properties": self.properties
+            "properties": self.properties,
+            "detected": self.detected
         }

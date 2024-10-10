@@ -38,15 +38,31 @@ def calculate_area(bounding_box):
     height = abs(y2 - y1)
     return width * height
 
-def filter_objects_by_size(objects, min_size):
+def detected_objects_filter(objects, min_size):
     """
-    Filter out mapObjects from a list that are below the specified size threshold.
+    Set the object detected property based on object size.
     
     Parameters:
     - objects: List of mapObject instances.
     - min_size: Minimum area threshold to filter objects by.
 
     Returns:
-    - A list of mapObject instances that are equal to or larger than the minimum size.
+    - A list of mapObject instances with updated detected properties
     """
-    return [obj for obj in objects if calculate_area(obj.boundingBox) >= min_size]
+    filtered_objects = []
+    for obj in objects:
+        if calculate_area(obj.boundingBox) >= min_size:
+            obj.detected = True
+        filtered_objects.append(obj)
+    return filtered_objects
+
+def update_map_detections(map, new_detections):
+    for detection in new_detections:
+        # Find the object in the map that has the same name as the current detection
+        for obj in map:
+            if obj.name == detection["name"]:
+                # Mark the object as detected
+                obj.detected = True
+                break
+
+    return map

@@ -4,14 +4,14 @@ from ..lib.utils import get_gradient_at_position
 from ..config import ENV_WIDTH, ENV_HEIGHT, MAX_SPEED, MAX_FORCE, RADIUS
 
 class Agent:
-    def __init__(self, agent_id, position, target_id):
-        x, y, z = position[0], position[1], position[2]
+    def __init__(self, agent_id, position, target_id, z_position=0):
+        x, y = position[0], position[1]
         self.id = agent_id  # Unique identifier for the agent
         self.position = np.array([x, y], dtype=float)
         self.velocity = np.random.uniform(-2, 2, 2)  # 2D vector for velocity
         self.acceleration = np.zeros(2, dtype=float)  # Initialize acceleration to zero
         self.target_id = target_id  # Swarm identifier
-        self.z_position = z  # For 3D simulations
+        self.z_position = z_position  # For 3D simulations
         self.role = None  # Role assigned to the agent
 
     def edges(self):
