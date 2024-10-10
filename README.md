@@ -2,7 +2,7 @@
 
 # Agent Armada
 
-![Project Logo](./images/logo.jpg)
+![Project Logo](./public/images/logo.jpg)
 
 </div>
 
