@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import Agent from './Agent';
 import Target from './Target';
 import Obstacle from './Obstacle';
-import { getColorBySwarmId, createRefinedHeightMapTexture, convertEnvPositionToThree, convertEnvRadiusToThree, createMapObjects } from '../lib/helpers';
+import { getColorBySwarmId, createRefinedHeightMapTexture, convertEnvPositionToThree, convertEnvRadiusToThree, createMapObjects, updateDetections } from '../lib/helpers';
 import { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
 import { attachIndicatorsToAgent, updateAgentIndicators } from './visuals/indicators';
 import { useWebSocketData } from './WebSocketContext';
@@ -23,7 +23,7 @@ const ThreeScene = ({ mapName }) => {
     const heightMapTexture = createRefinedHeightMapTexture(TERRAIN_HEIGHT_MAP, 8);
 
     const [mapData, setMap] = useState([]);
-    const { agents, targets, obstacles } = useWebSocketData();
+    const { agents, targets, obstacles, new_detections } = useWebSocketData();
 
     // Load the map data
     useEffect(() => {
@@ -222,8 +222,13 @@ const ThreeScene = ({ mapName }) => {
                     updateAgentIndicators(agent);
                 }
             });
+
+            // Handle new detections from WebSocket data
+            if (new_detections && new_detections.length > 0) {
+                updateDetections(scene, new_detections);
+            }
         }
-    }, [agents, targets, obstacles]); // Add WebSocket data as dependencies
+    }, [agents, targets, obstacles, new_detections]);
 
     return <div ref={containerRef} className="flex-grow"></div>; // Return a div to contain the renderer
 };

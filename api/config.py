@@ -6,10 +6,11 @@ BASE_DIR = Path(__file__).resolve().parent
 
 # SIMULATION ENVIRONMENT PARAMETERS
 ENV_WIDTH, ENV_HEIGHT = 800, 600
+DETECT_FILTER_SIZE = 450
 
 # Agent parameters
 NUM_AGENTS = 20
-MAX_SPEED = 1
+MAX_SPEED = 2.5
 MAX_FORCE = 0.1
 RADIUS = 100  # Perception radius for alignment, cohesion, separation
 

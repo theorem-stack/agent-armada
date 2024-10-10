@@ -144,79 +144,174 @@ function convertEnvRadiusToThree(envRadius, envWidth, envHeight, threeWidth, thr
 
 function createMapObjects(mapObjects, scene) {
     mapObjects.forEach((mapObject) => {
-        const { name, position, boundingBox, object_type, condition, properties } = mapObject;
+        const { name, position, boundingBox, object_type, condition, properties, detected } = mapObject;
 
-        // Convert position to Three.js coordinates
-        const threePosition = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
+        if (detected) {
 
-        // Bounding box dimensions
-        const [[BL_x, BL_y], [TR_x, TR_y]] = boundingBox;
-        const width = TR_x - BL_x;
-        const height = TR_y - BL_y;
+            // Convert position to Three.js coordinates
+            const threePosition = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
 
-        // Scale the bounding box to Three.js coordinates
-        const scaledWidth = (width * THREE_WIDTH) / ENV_WIDTH;
-        const scaledHeight = (height * THREE_HEIGHT) / ENV_HEIGHT;
+            // Bounding box dimensions
+            const [[BL_x, BL_y], [TR_x, TR_y]] = boundingBox;
+            const width = TR_x - BL_x;
+            const height = TR_y - BL_y;
 
-        let geometry, material, mesh;
+            // Scale the bounding box to Three.js coordinates
+            const scaledWidth = (width * THREE_WIDTH) / ENV_WIDTH;
+            const scaledHeight = (height * THREE_HEIGHT) / ENV_HEIGHT;
 
-        // Define geometry and material based on object type
-        switch (object_type) {
-            case "building":
-                geometry = new THREE.BoxGeometry(scaledWidth, scaledHeight, 1); // Height can be adjusted as needed
-                material = new THREE.MeshStandardMaterial({
-                    color: condition === 'damaged' ? 0xff0000 : 0x00ff00 // Red for damaged, green for intact
-                });
-                break;
+            let geometry, material, mesh;
 
-            case "flood":
-                geometry = new THREE.PlaneGeometry(scaledWidth, scaledHeight);
-                material = new THREE.MeshStandardMaterial({
-                    color: 0x0000ff,
-                    transparent: true,
-                    opacity: 0.5 // Blue for water
-                });
+            // Define geometry and material based on object type
+            switch (object_type) {
+                case "building":
+                    geometry = new THREE.BoxGeometry(scaledWidth, scaledHeight, 1); // Height can be adjusted as needed
+                    material = new THREE.MeshStandardMaterial({
+                        color: condition === 'damaged' ? 0xff0000 : 0x00ff00 // Red for damaged, green for intact
+                    });
+                    break;
+
+                case "flood":
+                    geometry = new THREE.PlaneGeometry(scaledWidth, scaledHeight);
+                    material = new THREE.MeshStandardMaterial({
+                        color: 0x0000ff,
+                        transparent: true,
+                        opacity: 0.5 // Blue for water
+                    });
+                    mesh = new THREE.Mesh(geometry, material);
+                    mesh.position.set(0, 0, -1); // Slightly below the origin
+                    break;
+
+                case "tree":
+                    geometry = new THREE.CylinderGeometry(scaledWidth / 2, scaledWidth / 2, scaledHeight); // Use scaledWidth for trunk diameter
+                    material = new THREE.MeshStandardMaterial({ color: 0x8B4513 }); // Brown
+                    break;
+
+                case "vehicle":
+                    geometry = new THREE.BoxGeometry(scaledWidth, scaledHeight, 0.5); // Vehicle shape
+                    material = new THREE.MeshStandardMaterial({ color: 0x687487 }); // Grayish blue
+                    break;
+
+                case "person":
+                    geometry = new THREE.SphereGeometry(scaledWidth / 2, 32, 32); // Sphere for person
+                    material = new THREE.MeshStandardMaterial({ color: 0xffd700 }); // Gold
+                    break;
+
+                default:
+                    console.warn(`Unknown object type: ${object_type}`);
+                    return; // Skip unknown object types
+            }
+
+            // Create the mesh and apply material
+            if (geometry) {
                 mesh = new THREE.Mesh(geometry, material);
-                mesh.position.set(0, 0, -1); // Slightly below the origin
-                break;
+            }
 
-            case "tree":
-                geometry = new THREE.CylinderGeometry(scaledWidth / 2, scaledWidth / 2, scaledHeight); // Use scaledWidth for trunk diameter
-                material = new THREE.MeshStandardMaterial({ color: 0x8B4513 }); // Brown
-                break;
+            // Rotate the mesh if necessary (for flat objects)
+            if (object_type === "tree" || object_type === "vehicle" || object_type === "person") {
+                mesh.rotation.x = -Math.PI / 2; // Rotate to lie flat on the x-y plane
+            }
 
-            case "vehicle":
-                geometry = new THREE.BoxGeometry(scaledWidth, scaledHeight, 0.5); // Vehicle shape
-                material = new THREE.MeshStandardMaterial({ color: 0x687487 }); // Grayish blue
-                break;
+            // Set the object's position in the scene
+            if (mesh) {
+                mesh.position.copy(threePosition);
+                mesh.userData = { name, boundingBox, condition, properties }; // Store additional properties
+                scene.add(mesh); // Add the mesh to the scene
 
-            case "person":
-                geometry = new THREE.SphereGeometry(scaledWidth / 2, 32, 32); // Sphere for person
-                material = new THREE.MeshStandardMaterial({ color: 0xffd700 }); // Gold
-                break;
+                // Add a text label for the object's name
+                const labelCanvas = createTextLabel(name); // Create a canvas with text
+                const labelTexture = new THREE.CanvasTexture(labelCanvas);
+                const spriteMaterial = new THREE.SpriteMaterial({ map: labelTexture });
+                const sprite = new THREE.Sprite(spriteMaterial);
 
-            default:
-                console.warn(`Unknown object type: ${object_type}`);
-                return; // Skip unknown object types
-        }
+                // Set sprite size and position (slightly above the object)
+                sprite.scale.set(1, 1, 1); // Adjust size as needed
+                sprite.position.set(threePosition.x, threePosition.y, threePosition.z + 1); // Adjust Z position to float above the object
 
-        // Create the mesh and apply material
-        if (geometry) {
-            mesh = new THREE.Mesh(geometry, material);
-        }
+                // Apply the same rotation as the mesh (rotate flat on the x-y plane)
+                sprite.rotation.x = -Math.PI / 2; // Rotate sprite like the mesh to face upward
 
-        // Rotate the mesh if necessary
-        if (object_type === "tree" || object_type === "vehicle" || object_type === "person") {
-            mesh.rotation.x = -Math.PI / 2; // Rotate to lie flat on the x-y plane
-        }
-
-        // Set the object's position in the scene
-        if (mesh) {
-            mesh.position.copy(threePosition);
-            mesh.userData = { name, boundingBox, condition, properties }; // Store additional properties
-            scene.add(mesh); // Add the mesh to the scene
+                // Add the label to the scene
+                scene.add(sprite);
+            }
         }
     });
 }
 
-export { createRefinedHeightMapTexture, convertEnvPositionToThree, getColorBySwarmId, convertEnvRadiusToThree, createMapObjects };
+const updateDetections = (scene, newDetections) => {
+    newDetections.forEach(detection => {
+        const { name, position, boundingBox, object_type, condition, properties, detected } = detection;
+
+        // Convert position to Three.js coordinates
+        const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
+
+        // Check if the object is already in the scene
+        let existingDetection = scene.getObjectByName(name);
+
+        if (!existingDetection) {
+            // Create a new visual representation for the detection (e.g., box or sphere)
+            const geometry = new THREE.BoxGeometry(
+                (boundingBox[1][0] - boundingBox[0][0]) * THREE_WIDTH / ENV_WIDTH,
+                (boundingBox[1][1] - boundingBox[0][1]) * THREE_HEIGHT / ENV_HEIGHT,
+                1 // You can adjust the depth as needed
+            );
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x00ff00, 
+                transparent: true, 
+                opacity: 0.5
+            });
+
+            const detectionMesh = new THREE.Mesh(geometry, material);
+            detectionMesh.position.set(pos.x, pos.y, pos.z);
+            detectionMesh.name = name; // Set the name for easy reference
+
+            // Add the detection mesh to the scene
+            scene.add(detectionMesh);
+
+            // Add a text label for the object's name
+            const labelCanvas = createTextLabel(name); // Create a canvas with text
+            const labelTexture = new THREE.CanvasTexture(labelCanvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: labelTexture });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            // Set sprite size and position (slightly above the object)
+            sprite.scale.set(1, 1, 1); // Adjust size as needed
+            sprite.position.set(pos.x, pos.y, pos.z + 1); // Adjust Z position to float above the object
+
+            // Apply the same rotation as the mesh (rotate flat on the x-y plane)
+            sprite.rotation.x = -Math.PI / 2;
+
+            // Add the label to the scene
+            scene.add(sprite);
+        } else {
+            // Update position or other properties if the detection already exists
+            existingDetection.position.copy(pos);
+        }
+    });
+};
+
+// Function to create a text label using canvas
+function createTextLabel(text) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    const fontSize = 24;
+
+    // Set canvas size
+    canvas.width = 256;
+    canvas.height = 128;
+
+    // Set font and styling
+    context.font = `${fontSize}px Arial`;
+    context.fillStyle = 'white';
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+
+    // Draw text in the center of the canvas
+    context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    return canvas;
+}
+
+
+
+export { createRefinedHeightMapTexture, convertEnvPositionToThree, getColorBySwarmId, convertEnvRadiusToThree, createMapObjects, updateDetections };
