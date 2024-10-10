@@ -1,5 +1,3 @@
-import json
-
 def map_to_dict(map_objects):
     map_representation = []
     for obj in map_objects:
