@@ -19,6 +19,7 @@ async def run_simulation(llm_plan: dict, map: list[mapObject], existing_agent_da
     # Initialize Environment
     global agents_data, targets_data, obstacles_data, agent_detections_data, targets, agents, new_detections
 
+    # Uncomment to respawn agents at last location in prev simulation step
     # # Initialize the agents at random positions
     # if existing_agent_data:
     #     agents_dict = existing_agent_data.copy()

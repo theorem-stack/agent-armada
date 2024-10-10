@@ -1,10 +1,8 @@
 from dotenv import load_dotenv
 import os
-import json
 from openai import OpenAI
-from pathlib import Path
 
-from ..config import LLM_MISSION_STATEMENT_PROMPT, LLM_PLAN_REVIEWER_PROMPT, LLM_PROMPT_SYSTEM_RESPONSE, OPENAI_MODEL, MAX_TOKENS, TEMPERATURE
+from ..config import OPENAI_MODEL, MAX_TOKENS, TEMPERATURE
 from ..translator.translator import translate
 from ..lib.dataProcessing import map_to_string
 from ..lib.utils import parse_yaml_steps
@@ -23,9 +21,9 @@ async def OpenAI_API_CALL(user_mission_statement, prompt):
         print("Calling OpenAI API...")
 
         client = OpenAI(
-            # This is the default and can be omitted
-            # base_url="https://api.aimlapi.com/v1",
-            api_key=OPEN_AI_API_KEY, # AI_ML_API_KEY
+            base_url="https://api.aimlapi.com/v1",
+            api_key=AI_ML_API_KEY,
+            # api_key=OPEN_AI_API_KEY,
         )
 
         response = client.chat.completions.create(
