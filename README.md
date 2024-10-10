@@ -1,90 +1,86 @@
-<p align="center">
-  <a href="https://nextjs-fastapi-starter.vercel.app/">
-    <img src="https://assets.vercel.com/image/upload/v1588805858/repositories/vercel/logo.png" height="96">
-    <h3 align="center">Next.js FastAPI Starter</h3>
-  </a>
-</p>
+<div align="center">
 
-<p align="center">Simple Next.j 14 boilerplate that uses <a href="https://fastapi.tiangolo.com/">FastAPI</a> as the API backend.</p>
+# Agent Armada
 
-<br/>
+![Project Logo](./logo.png)
 
-## Introduction
+</div>
 
-This is a hybrid Next.js 14 + Python template. One great use case of this is to write Next.js apps that use Python AI libraries on the backend, while still having the benefits of Next.js Route Handlers and Server Side Rendering.
+## Problem Statement
+Natural disasters present significant challenges for search and rescue operations, often leading to delayed response times, difficulties in locating victims, and increased risks for personnel operating in hazardous environments.
 
-## How It Works
+## Other Similar Problems
+- **Search and Rescue:** Coordinating efforts to locate and assist individuals in emergencies.
+- **National Park Monitoring:** Observing wildlife and monitoring environmental changes in vast and rugged terrains.
+- **Military Reconnaissance:** Gathering intelligence in potentially dangerous zones while ensuring personnel safety.
 
-The Python/FastAPI server is mapped into to Next.js app under `/api/`.
+## Solution
+**AI Multi-Agent Systems** represent an innovative frontier in addressing these complex challenges. They offer the ability to:
+- Rapidly search large and dense terrains, significantly improving operational efficiency.
+- Enhance search effectiveness compared to a single manually operated drone or convential human search efforts.
+- Minimize human risk in environments that are otherwise perilous for personnel.
 
-This is implemented using [`next.config.js` rewrites](https://github.com/digitros/nextjs-fastapi/blob/main/next.config.js) to map any request to `/api/py/:path*` to the FastAPI API, which is hosted in the `/api` folder.
+### Traditional Difficulties of Multi-Agent Systems
+- **Design Complexity:** Development can be intricate and often tailored to specific tasks.
+- **Management Challenges:** Effective deployment requires sophisticated objective planning and resource allocation.
+- **Limited Human Interface:** Many traditional robotic systems are either pre-programmed or require manual control, which can hinder adaptability and responsiveness in dynamic situations.
 
-Also, the app/api routes are available on the same domain, so you can use NextJs Route Handlers and make requests to `/api/...`.
+## System Solution
+Utilizing an **LLM (Large Language Model)** as an interface between a human and a swarm of autonomous agents. The LLM interprets the human request, breaks down the request using Chain of Thought, and directs the swarm of autonomous agents.
 
-On localhost, the rewrite will be made to the `127.0.0.1:8000` port, which is where the FastAPI server is running.
-
-In production, the FastAPI server is hosted as [Python serverless functions](https://vercel.com/docs/concepts/functions/serverless-functions/runtimes/python) on Vercel.
-
-## Demo
-
-https://nextjs-fastapi-starter.vercel.app/
-
-## Deploy Your Own
-
-You can clone & deploy it to Vercel with one click:
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdigitros%2Fnextjs-fastapi%2Ftree%2Fmain)
-
-## Developing Locally
-
-You can clone & create this repo with the following command
-
-```bash
-npx create-next-app nextjs-fastapi --example "https://github.com/digitros/nextjs-fastapi"
-```
+### Benefits of LLM Interface
+- **Natural Human Interface:** A complex swarm can easily be managed and directed using text or voice commands.
+- **Dynamic Planning:** The LLM can dynamically assign roles and objectives to each agent based on the human command and available resources.
+- **Feedback:** The LLM can collect and interpret swarm information, allowing the human to easily understand objective progress.
 
 ## Getting Started
+To set up the project locally, follow these steps:
 
-First, create and activate a virtual environment:
+### Prerequisites
+Ensure you have Node.js (v14 or later) installed on your machine.
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+### Installation Instructions
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/agent-armada.git
+   cd agent-armada
+   ```
 
-Then, install the dependencies:
+2. Install the necessary dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-# or
-yarn
-# or
-pnpm install
-```
+3. Create a `.env` file in the root directory and add your API keys:
+   ```env
+   OPEN_AI_API_KEY=your_openai_api_key_here
+   AI_ML_API_KEY=your_aiml_api_key_here
+   ```
 
-Then, run the development server(python dependencies will be installed automatically here):
+4. Run the application:
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+### Usage
+After running the application, navigate to `http://localhost:3000` in your browser to access the Agent Armada interface.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Acknowledgement of Moral Hazard
+The application of dynamic, environment-agnostic autonomous drone swarms has numerous beneficial use cases, including natural disaster search and rescue, agriculture, infrastructure maintenance, and wildlife management. However, the potential for misuse in warfare and other harmful applications raises significant ethical concerns.
 
-The FastApi server will be running on [http://127.0.0.1:8000](http://127.0.0.1:8000) – feel free to change the port in `package.json` (you'll also need to update it in `next.config.js`).
+## Contributing
+We welcome contributions to Agent Armada! To contribute:
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature/YourFeature`).
+3. Make your changes and commit them (`git commit -m 'Add some feature'`).
+4. Push to the branch (`git push origin feature/YourFeature`).
+5. Open a pull request.
 
-## Learn More
+## License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [FastAPI Documentation](https://fastapi.tiangolo.com/) - learn about FastAPI features and API.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-Create a local .env file in the project root folder with the following variables:
-- OPEN_AI_API_KEY
+## Contact Information
+For questions or feedback, reach out to the project maintainers:
+- **Name:** Your Name
+- **Email:** your.email@example.com
+- **GitHub:** [yourusername](https://github.com/yourusername)
