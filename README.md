@@ -2,7 +2,7 @@
 
 # Agent Armada
 
-![Project Logo](./logo.png)
+![Project Logo](./images/logo.jpg)
 
 </div>
 
@@ -67,6 +67,15 @@ After running the application, navigate to `http://localhost:3000` in your brows
 
 ## Acknowledgement of Moral Hazard
 The application of dynamic, environment-agnostic autonomous drone swarms has numerous beneficial use cases, including natural disaster search and rescue, agriculture, infrastructure maintenance, and wildlife management. However, the potential for misuse in warfare and other harmful applications raises significant ethical concerns.
+
+## Potential Enhancements
+This section outlines potential improvements and features that could be implemented in future versions of Agent Armada. We welcome contributions and suggestions from the community to enhance the capabilities of this project.
+
+- **Adding Agent Memory with Case-Based Reasoning + Semantic Graphs:** Enable agents to remember past experiences and make informed decisions based on previous cases.
+- **Implementing Reinforcement Learning:** Allow agents to learn optimal strategies through trial and error, enhancing their ability to adapt to various environments and tasks.
+- **Integrating OpenStreetMap:** Incorporate detailed mapping data to improve navigation and search capabilities in complex terrains.
+- **Enhanced User Interface:** Develop a more intuitive and interactive UI for easier interaction with the agent swarm and monitoring of their activities.
+- **Advanced Local Agent Decision Logic:** Implement advanced communication strategies between agents to improve coordination and task sharing.
 
 ## Contributing
 We welcome contributions to Agent Armada! To contribute:
