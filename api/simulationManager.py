@@ -36,6 +36,13 @@ async def run_simulation(llm_plan: dict, map: list[mapObject]):
     eval_interval = 50  # Number of steps before evaluating the agent positions
     agent_detection_eval_interval = 10  # Number of steps before evaluating agent detections
 
+    # Get each step and the objective from the LLM plan
+    for step in llm_plan:
+        plan_progress[step] = {
+            "objective": llm_plan[step]["objective"],
+            "completed": False
+        }
+
     # Main simulation loop
     while running:
 
@@ -81,22 +88,19 @@ async def run_simulation(llm_plan: dict, map: list[mapObject]):
                     "acceleration": agent.acceleration.tolist(),  # Initialize acceleration to zero
                 }
 
-                # DEBUG!!!!!!!!!!!!!!!!!!
-                # # Agent detections (Temporary, inefficient implementation)
-                # if loop_counter % agent_detection_eval_interval == 0:
-                #     for object in map:
-                #         if agent.detect(object):
-                #             agent_detections_data[agent.target_id] = object.to_dict()
+                # Agent detections (Temporary, inefficient implementation)
+                if loop_counter % agent_detection_eval_interval == 0:
+                    for object in map:
+                        if agent.detect(object):
+                            agent_detections_data[agent.id] = object.name
 
             # Check if all agents have reached their targets (Temporary, inefficient implementation)
-            if loop_counter % eval_interval == 0:
+            if loop_counter % eval_interval == 0 and step in llm_plan:
                 agent_positions = [agent.position for agent in agents]
                 step_completed = evaluate_coordinates(agent_positions, target_positions, EVAL_TOLERANCE)
+                plan_progress[current_step - 1]["completed"] = step_completed
 
                 print(f"Step {current_step - 1} completed: {step_completed}")
-
-            # Provide progress updates
-            plan_progress[current_step] = step_completed
 
             await asyncio.sleep(0.01)  # Control the update frequency
 

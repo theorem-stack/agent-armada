@@ -16,6 +16,7 @@ load_dotenv()
 
 # Get the OpenAI API key from the environment variables
 OPEN_AI_API_KEY = os.getenv("OPEN_AI_API_KEY")
+AI_ML_API_KEY = os.getenv("AI_ML_API_KEY")
 
 async def OpenAI_API_CALL(user_mission_statement, prompt):
     try:
@@ -23,7 +24,8 @@ async def OpenAI_API_CALL(user_mission_statement, prompt):
 
         client = OpenAI(
             # This is the default and can be omitted
-            api_key=OPEN_AI_API_KEY,
+            # base_url="https://api.aimlapi.com/v1",
+            api_key=OPEN_AI_API_KEY, # AI_ML_API_KEY
         )
 
         response = client.chat.completions.create(

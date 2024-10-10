@@ -64,6 +64,8 @@ async def receive_mission_input(mission_input: MissionInput):
     detailed_map = maps["hurricane_map"]  # Detailed Exact Map (for environment representation)
     satellite_map_objects = filter_objects_by_size(detailed_map, min_size=10)  # Filter for larger objects
 
+    print(satellite_map_objects)
+
     # Call the LLM Planning function
     mission_statement = mission_input.user_mission_statement
     N = NUM_AGENTS

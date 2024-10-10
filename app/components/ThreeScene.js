@@ -9,15 +9,21 @@ import Obstacle from './Obstacle';
 import { getColorBySwarmId, createRefinedHeightMapTexture, convertEnvPositionToThree, convertEnvRadiusToThree, createMapObjects } from '../lib/helpers';
 import { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
 import { attachIndicatorsToAgent, updateAgentIndicators } from './visuals/indicators';
+import { useWebSocketData } from './WebSocketContext';
 
+const ThreeScene = ({ mapName }) => {
+    const rendererRef = useRef(null);
+    const sceneRef = useRef(null);
+    const cameraRef = useRef(null);
+    const containerRef = useRef(null); // Ref for the container
 
-const ThreeScene = ({mapName}) => {
     const agentsRef = useRef([]);
     const targetsRef = useRef([]);
     const obstaclesRef = useRef([]);
     const heightMapTexture = createRefinedHeightMapTexture(TERRAIN_HEIGHT_MAP, 8);
 
     const [mapData, setMap] = useState([]);
+    const { agents, targets, obstacles } = useWebSocketData();
 
     // Load the map data
     useEffect(() => {
@@ -40,13 +46,14 @@ const ThreeScene = ({mapName}) => {
         fetchMapData();
     }, [mapName]);
 
+    // Initialize the WebGL renderer and scene
     useEffect(() => {
-        // Create a basic Three.js scene
         const scene = new THREE.Scene();
+        sceneRef.current = scene;
 
         // Set up an Orthographic camera
-        const aspect = window.innerWidth / window.innerHeight;
-        const cameraSize = 4;  // Adjust this value to control the zoom level
+        const aspect = THREE_WIDTH / THREE_HEIGHT; // Use the THREE_WIDTH and THREE_HEIGHT
+        const cameraSize = 4; // Adjust this value to control the zoom level
         const camera = new THREE.OrthographicCamera(
             -cameraSize * aspect,   // left
             cameraSize * aspect,    // right
@@ -55,24 +62,43 @@ const ThreeScene = ({mapName}) => {
             0.1,                    // near
             1000                    // far
         );
+        cameraRef.current = camera;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
+        rendererRef.current = renderer;
+
+        // Function to set the size of the renderer and camera
+        const setSize = () => {
+            const scalingFactor = Math.min(window.innerWidth / THREE_WIDTH, window.innerHeight / THREE_HEIGHT);
+            renderer.setSize(THREE_WIDTH * scalingFactor, THREE_HEIGHT * scalingFactor);
+            camera.updateProjectionMatrix();
+        };
+
+        // Set the initial size
+        setSize();
+
+        // Handle window resize
+        window.addEventListener('resize', setSize);
+
+        // Append renderer to the container
+        if (containerRef.current) {
+            containerRef.current.appendChild(renderer.domElement);
+        }
 
         // Position the camera
-        camera.position.set(0, 0, 5); // Camera is positioned at z=5
-        camera.lookAt(0, 0, 0);       // Looking at the origin (center)
+        camera.position.set(0, 0, 5); // Move the camera back
+        camera.lookAt(0, 0, 0); // Look at the origin
 
         // Create a background plane with the height map texture
         const geometry = new THREE.PlaneGeometry(THREE_WIDTH, THREE_HEIGHT, 32, 32);
         const material = new THREE.MeshStandardMaterial({
-            map: heightMapTexture, // Use the height map as a texture
+            map: heightMapTexture,
             transparent: true,
         });
 
         const backgroundPlane = new THREE.Mesh(geometry, material);
-        backgroundPlane.rotation.x = -Math.PI * 2; // Rotate plane to lie flat
+        backgroundPlane.rotation.x = -Math.PI * 2; // Rotate plane to lie flat on the x-y plane
         backgroundPlane.position.y = 0; // Position it lower in the scene
         backgroundPlane.position.z = -1; // Push it back in the scene
         scene.add(backgroundPlane);
@@ -87,51 +113,41 @@ const ThreeScene = ({mapName}) => {
             new THREE.EdgesGeometry(new THREE.BoxGeometry(THREE_WIDTH, THREE_HEIGHT, 0)),
             new THREE.LineBasicMaterial({ color: 0xff0000 }) // Red border color
         );
-        scene.add(borderGeometry); // Add the border to the scene
+        scene.add(borderGeometry);
 
-        // Create high level map objects from satellite data
+        // Create high-level map objects from satellite data
         createMapObjects(mapData, scene);
 
-        // --------------------------------------------------------------
+        // Simple animation loop
+        const animate = () => {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        };
+        
+        animate();
 
-        // WebSocket connection
-        const socket = new WebSocket('ws://localhost:8000/ws/agents');
-
-        socket.onopen = () => {
-            console.log('WebSocket connection established');
-            // Send a test message (optional)
-            socket.send('Hello from the client!');
+        // Cleanup function
+        return () => {
+            renderer.dispose(); // Dispose the renderer
+            if (containerRef.current) {
+                containerRef.current.removeChild(renderer.domElement); // Remove the renderer from the container
+            }
         };
 
-        socket.onmessage = (event) => {
+    }, [mapData]);
 
-            const data = JSON.parse(event.data);
+    // Update the scene with new WebSocket data
+    useEffect(() => {
+        if (sceneRef.current) {
+            const scene = sceneRef.current;
 
-            const targetsData = data.targets;
-            const obstaclesData = data.obstacles;
-            const agentsData = data.agents;
-            const planProgressData = data.plan_progress;
-            // const detectionData = data.agent_detections;
-
-            // console.log('Received agents data:', agentsData);
-            // console.log('Received targets data:', targetsData);
-            // console.log('Received obstacles data:', obstaclesData);
-            // console.log('Received plan progress data:', planProgressData);
-
-            // Create or update targets
-            Object.entries(targetsData).forEach(([id, targetData]) => {
-                const {
-                    position,
-                    radius
-                } = targetData;
-
+            // Update or create targets based on WebSocket data
+            Object.entries(targets).forEach(([id, targetData]) => {
+                const { position, radius } = targetData;
                 const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
-
-                // Find existing Agent by id
                 let target = targetsRef.current.find(t => t.id === id);
 
                 if (!target) {
-                    // Create a new Agent if it doesn't exist
                     target = new Target(
                         id,
                         pos,
@@ -141,65 +157,46 @@ const ThreeScene = ({mapName}) => {
                     scene.add(target.mesh);
                     targetsRef.current.push(target);
                 } else {
-                    // Update the existing Agent's position
                     target.position.copy(pos);
                     target.updateMeshPosition();
                     target.updateColor(getColorBySwarmId(id));
                 }
             });
 
-            // Create or update obstacles
-            Object.entries(obstaclesData).forEach(([id, obstacleData]) => {
-                const {
-                    position,
-                    radius
-                } = obstacleData;
-
+            // Update or create obstacles based on WebSocket data
+            Object.entries(obstacles).forEach(([id, obstacleData]) => {
+                const { position, radius } = obstacleData;
                 const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
-
-                // Find existing Agent by id
                 let obstacle = obstaclesRef.current.find(o => o.id === id);
 
                 if (!obstacle) {
-                    // Create a new Agent if it doesn't exist
                     obstacle = new Obstacle(
                         id,
                         pos,
                         convertEnvRadiusToThree(radius, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT),
-                        getColorBySwarmId(getColorBySwarmId(id))
+                        getColorBySwarmId(id)
                     );
                     scene.add(obstacle.mesh);
                     obstaclesRef.current.push(obstacle);
                 } else {
-                    // Update the existing Agent's position
                     obstacle.position.copy(pos);
                     obstacle.updateMeshPosition();
                     obstacle.updateColor(getColorBySwarmId(id));
                 }
             });
 
-            // Create or update agents
-            Object.entries(agentsData).forEach(([id, agentData]) => {
-                const {
-                    target_id,
-                    position,
-                    z_positon,
-                    velocity,
-                    acceleration
-                } = agentData;
-
+            // Update or create agents based on WebSocket data
+            Object.entries(agents).forEach(([id, agentData]) => {
+                const { target_id, position, z_position, velocity, acceleration } = agentData;
                 const pos = convertEnvPositionToThree(position, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT);
-
-                // Find existing Agent by id
                 let agent = agentsRef.current.find(b => b.id === id);
 
                 if (!agent) {
-                    // Create a new Agent if it doesn't exist
                     agent = new Agent(
                         id,
                         target_id,
                         pos,
-                        z_positon,
+                        z_position,
                         velocity,
                         acceleration,
                         getColorBySwarmId(target_id)
@@ -211,13 +208,12 @@ const ThreeScene = ({mapName}) => {
                         crosshair: false,
                         detectionRadius: false,
                     });
-                    agent.indicators = indicators; // Attach indicators to the Agent object
+                    agent.indicators = indicators;
 
                     scene.add(agent.mesh); // Add the new Agent mesh to the scene
                     scene.add(indicators); // Add the indicator group to the scene
-                    agentsRef.current.push(agent); // Add the new Agent to the ref
+                    agentsRef.current.push(agent);
                 } else {
-                    // Update the existing Agent's position
                     agent.position.copy(pos);
                     agent.updateMeshPosition();
                     agent.updateColor(getColorBySwarmId(target_id));
@@ -226,34 +222,10 @@ const ThreeScene = ({mapName}) => {
                     updateAgentIndicators(agent);
                 }
             });
-        };
+        }
+    }, [agents, targets, obstacles]); // Add WebSocket data as dependencies
 
-        socket.onclose = (event) => {
-        console.log('WebSocket connection closed:', event);
-        };
-
-        socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        };
-
-        // Simple animation loop (just to keep the scene active)
-        const animate = () => {
-            requestAnimationFrame(animate);
-            renderer.render(scene, camera);
-        };
-        
-        animate();
-
-        return () => {
-            // Cleanup
-            socket.close(); // Close WebSocket connection
-            renderer.dispose();
-            document.body.removeChild(renderer.domElement);
-        };
-
-    }, [mapData]); // Ensure this is an empty dependency array
-
-    return null; // No JSX to render
+    return <div ref={containerRef} className="flex-grow"></div>; // Return a div to contain the renderer
 };
 
 export default ThreeScene;
