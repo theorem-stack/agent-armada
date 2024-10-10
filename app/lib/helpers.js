@@ -1,20 +1,34 @@
 import * as THREE from 'three';
 import { ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
 
-
 // Utility function to generate colors based on swarm_id
 function getColorBySwarmId(swarm_id) {
-    const colors = {
-        0: 0xff0000, // Red
-        1: 0x00ff00, // Green
-        2: 0x0000ff, // Blue
-        3: 0xffff00, // Yellow
-        4: 0xff00ff, // Magenta
-        5: 0x00ffff, // Cyan
-        // More colors can be added here...
-    };
-    // Default color if swarm_id is not found
-    return colors[swarm_id] || 0xffffff; // Default to white
+    // Generate a unique hue based on the swarm_id
+    const hue = (swarm_id * 137.508) % 360; // Golden ratio to spread colors evenly
+    const saturation = 70; // Saturation of the color (70%)
+    const lightness = 50; // Lightness of the color (50%)
+
+    // Convert HSL to RGB and then to hexadecimal format
+    return hslToHex(hue, saturation, lightness);
+}
+
+// Function to convert HSL to hex color
+function hslToHex(h, s, l) {
+    // Convert percentages to range [0, 1]
+    s /= 100;
+    l /= 100;
+
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n =>
+        l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+
+    const r = Math.round(255 * f(0));
+    const g = Math.round(255 * f(8));
+    const b = Math.round(255 * f(4));
+
+    // Convert RGB to hexadecimal format
+    return (r << 16) + (g << 8) + b;
 }
 
 const createRefinedHeightMapTexture = (heightMap, scaleFactor) => {
