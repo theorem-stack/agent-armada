@@ -1,3 +1,4 @@
+// components/MissionInput.js
 import { useState } from "react";
 
 const MissionInput = ({ onMissionSubmit }) => {
@@ -40,8 +41,8 @@ const MissionInput = ({ onMissionSubmit }) => {
   };
 
   return (
-    <div className="w-full max-w-lg mx-auto p-4">
-      <label htmlFor="mission" className="block text-lg font-medium mb-2 text-gray-700">
+    <div className="w-full p-4 bg-gray-800"> {/* Set to the same color as LogTerminal */}
+      <label htmlFor="mission" className="block text-sm font-medium mb-1 text-gray-300"> {/* Lightened text for contrast */}
         Your Mission Statement:
       </label>
       <textarea
@@ -49,14 +50,14 @@ const MissionInput = ({ onMissionSubmit }) => {
         value={missionStatement}
         onChange={(e) => setMissionStatement(e.target.value)}
         placeholder="Enter your mission statement..."
-        rows="5"
-        className="w-full p-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"  // Added 'text-black'
+        rows="4"
+        className="w-full p-2 text-sm border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-700 text-gray-200" // Darker textarea for better contrast
       />
-      <div className="mt-4">
+      <div className="mt-2">
         <button
           onClick={handleSubmit}
           disabled={isLoading}
-          className={`w-full py-2 px-4 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-all duration-200 ${
+          className={`w-full py-2 text-sm text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-all duration-200 ${
             isLoading ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
@@ -64,7 +65,7 @@ const MissionInput = ({ onMissionSubmit }) => {
         </button>
       </div>
       {responseMessage && (
-        <p className="mt-4 text-center text-sm text-red-500">{responseMessage}</p>
+        <p className="mt-2 text-center text-xs text-red-500">{responseMessage}</p>
       )}
     </div>
   );

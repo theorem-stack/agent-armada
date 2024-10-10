@@ -9,7 +9,7 @@ ENV_WIDTH, ENV_HEIGHT = 800, 600
 
 # Agent parameters
 NUM_AGENTS = 20
-MAX_SPEED = 3
+MAX_SPEED = 1
 MAX_FORCE = 0.1
 RADIUS = 100  # Perception radius for alignment, cohesion, separation
 
