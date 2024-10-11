@@ -77,6 +77,8 @@ This section outlines potential improvements and features that could be implemen
 - **Enhanced User Interface:** Develop a more intuitive and interactive UI for easier interaction with the agent swarm and monitoring of their activities.
 - **Advanced Local Agent Decision Logic:** Implement advanced communication strategies between agents to improve coordination and task sharing.
 
+For more information about important files, and information flow see system_overview.txt
+
 ## Contributing
 We welcome contributions to Agent Armada! To contribute:
 1. Fork the repository.
@@ -90,6 +92,5 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Contact Information
 For questions or feedback, reach out to the project maintainers:
-- **Name:** Your Name
-- **Email:** your.email@example.com
-- **GitHub:** [yourusername](https://github.com/yourusername)
+- **Name:** Cameron Gifford
+- **GitHub:** [yourusername](https://github.com/theorem-stack)

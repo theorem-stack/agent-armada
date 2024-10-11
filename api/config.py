@@ -34,7 +34,7 @@ TERRAIN_HEIGHT_MAP = np.array([
     [2, 4, 0, 0, 0],
     [2, 0, 8, 0, 0],
     [0, 0, 0, 2, 0],
-    [6, 0, 0, 0, 0]
+    [6, 0, 4, 4, 4]
 ])
 MAP_WIDTH, MAP_HEIGHT = TERRAIN_HEIGHT_MAP.shape
 

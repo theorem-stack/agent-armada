@@ -7,7 +7,7 @@ import Agent from './Agent';
 import Target from './Target';
 import Obstacle from './Obstacle';
 import { getColorBySwarmId, createRefinedHeightMapTexture, convertEnvPositionToThree, convertEnvRadiusToThree, createMapObjects, updateDetections } from '../lib/helpers';
-import { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT } from '../data/globalVars';
+import { TERRAIN_HEIGHT_MAP, ENV_WIDTH, ENV_HEIGHT, THREE_WIDTH, THREE_HEIGHT, TERRAIN_MAP_SCALE } from '../data/globalVars';
 import { attachIndicatorsToAgent, updateAgentIndicators } from './visuals/indicators';
 import { useWebSocketData } from './WebSocketContext';
 
@@ -20,7 +20,6 @@ const ThreeScene = ({ mapName }) => {
     const agentsRef = useRef([]);
     const targetsRef = useRef([]);
     const obstaclesRef = useRef([]);
-    const heightMapTexture = createRefinedHeightMapTexture(TERRAIN_HEIGHT_MAP, 8);
 
     const [mapData, setMap] = useState([]);
     const { agents, targets, obstacles, new_detections } = useWebSocketData();
@@ -68,9 +67,12 @@ const ThreeScene = ({ mapName }) => {
         document.body.appendChild(renderer.domElement);
         rendererRef.current = renderer;
 
+        const width = Math.ceil(window.innerWidth / THREE_WIDTH);
+        const height = Math.ceil(window.innerHeight / THREE_HEIGHT);
+
         // Function to set the size of the renderer and camera
         const setSize = () => {
-            const scalingFactor = Math.min(window.innerWidth / THREE_WIDTH, window.innerHeight / THREE_HEIGHT);
+            const scalingFactor = Math.min(width, height);
             renderer.setSize(THREE_WIDTH * scalingFactor, THREE_HEIGHT * scalingFactor);
             camera.updateProjectionMatrix();
         };
@@ -92,6 +94,9 @@ const ThreeScene = ({ mapName }) => {
 
         // Create a background plane with the height map texture
         const geometry = new THREE.PlaneGeometry(THREE_WIDTH, THREE_HEIGHT, 32, 32);
+
+        const heightMapTexture = createRefinedHeightMapTexture(TERRAIN_HEIGHT_MAP, TERRAIN_MAP_SCALE, width, height);
+
         const material = new THREE.MeshStandardMaterial({
             map: heightMapTexture,
             transparent: true,

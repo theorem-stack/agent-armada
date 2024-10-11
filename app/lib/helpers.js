@@ -31,9 +31,12 @@ function hslToHex(h, s, l) {
     return (r << 16) + (g << 8) + b;
 }
 
-const createRefinedHeightMapTexture = (heightMap, scaleFactor) => {
-    const originalWidth = heightMap[0].length;
-    const originalHeight = heightMap.length;
+const createRefinedHeightMapTexture = (heightMap, scaleFactor, geometryWidth, geometryHeight) => {
+
+    const scaledMap = scaleHeightMap(heightMap, geometryWidth, geometryHeight);
+
+    const originalWidth = scaledMap[0].length;
+    const originalHeight = scaledMap.length;
 
     // Calculate new dimensions based on the scale factor
     const width = originalWidth * scaleFactor;
@@ -58,10 +61,10 @@ const createRefinedHeightMapTexture = (heightMap, scaleFactor) => {
             const y1 = Math.min(y0 + 1, originalHeight - 1);
 
             // Get the heights at the corners
-            const q11 = heightMap[y0][x0];
-            const q12 = heightMap[y1][x0];
-            const q21 = heightMap[y0][x1];
-            const q22 = heightMap[y1][x1];
+            const q11 = scaledMap[y0][x0];
+            const q12 = scaledMap[y1][x0];
+            const q21 = scaledMap[y0][x1];
+            const q22 = scaledMap[y1][x1];
 
             // Bilinear interpolation
             const fX1 = q11 * (x1 - srcX) + q21 * (srcX - x0);
@@ -106,6 +109,47 @@ const createRefinedHeightMapTexture = (heightMap, scaleFactor) => {
     const texture = new THREE.DataTexture(data, width, height, THREE.RGBAFormat);
     texture.needsUpdate = true;
     return texture;
+};
+
+const scaleHeightMap = (heightMap, geometryWidth, geometryHeight) => {
+    const originalWidth = heightMap[0].length;
+    const originalHeight = heightMap.length;
+    
+    // Create a new array for the refined height map
+    const refinedHeightMap = new Array(geometryHeight);
+    for (let i = 0; i < geometryHeight; i++) {
+        refinedHeightMap[i] = new Array(geometryWidth);
+    }
+
+    // Calculate the scaling factors
+    const xScale = originalWidth / geometryWidth;
+    const yScale = originalHeight / geometryHeight;
+
+    // Iterate through the new array
+    for (let y = 0; y < geometryHeight; y++) {
+        for (let x = 0; x < geometryWidth; x++) {
+            // Find the corresponding position in the original heightMap
+            const originalX = x * xScale;
+            const originalY = y * yScale;
+
+            // Get the integer and fractional parts
+            const x0 = Math.floor(originalX);
+            const x1 = Math.min(x0 + 1, originalWidth - 1);
+            const y0 = Math.floor(originalY);
+            const y1 = Math.min(y0 + 1, originalHeight - 1);
+
+            const xFraction = originalX - x0;
+            const yFraction = originalY - y0;
+
+            // Perform bilinear interpolation
+            const top = (1 - xFraction) * heightMap[y0][x0] + xFraction * heightMap[y0][x1];
+            const bottom = (1 - xFraction) * heightMap[y1][x0] + xFraction * heightMap[y1][x1];
+
+            refinedHeightMap[y][x] = (1 - yFraction) * top + yFraction * bottom;
+        }
+    }
+
+    return refinedHeightMap;
 };
 
 function convertEnvPositionToThree(position, envWidth, envHeight, threeWidth, threeHeight) {
