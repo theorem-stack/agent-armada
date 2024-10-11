@@ -11,7 +11,7 @@ class Agent:
         self.velocity = np.random.uniform(-2, 2, 2)  # 2D vector for velocity
         self.acceleration = np.zeros(2, dtype=float)  # Initialize acceleration to zero
         self.target_id = target_id  # Swarm identifier
-        self.z_position = z_position  # For 3D simulations
+        self.z_position = z_position  # Separated for greater LLM control (similar to air traffic control altitude)
         self.role = None  # Role assigned to the agent
 
     def edges(self):

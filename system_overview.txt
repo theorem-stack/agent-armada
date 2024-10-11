@@ -1,0 +1,47 @@
+System Overview:
+RescueNet was developed as part of the LabLabAi Strawberry o1 hackathon, exploring ways to allow LLMs to interact with 3D environments and specifically multi-agent systems.
+
+Information Flow:
+1. Filtered Map data is loaded resembling satellite image of high level object detections. 
+2. User Input Mission Statement
+3. LLM uses Chain of Thought with map context to create multi-step plan
+4. Multi-step plan is parsed and translated
+5. Plan is passed to agent swarm
+6. Agents navigate environment based on LLM designated commands
+7. Agent detections are relayed to LLM for increased context
+8. Mission progress is relayed to user
+9. User can update mission as needed
+
+File Structure Overview:
+api
+    - lib (Helper Functions)
+    - llm (Prompts, Example Functions, LLM api implementation)
+    - simulation
+        - agent (Primary logic for each individual agent)
+        - environment (Object constructors for simulation environment)
+        - maps (Predefined lists of mapObjects for various simulation environments)
+        - obstacle (An object allowing the LLM to identify things agents should avoid)
+        - target (An object allowing the LLM to identify things of interest)
+    - translator (A way to parse and evaluate LLM plans via python functions)
+    - config (Contains all global variables except API KEYS)
+    - connectionManager (Backend web socket manager)
+    - index (Main file containing API endpoints)
+    - simulationManager (Main file containing simulation logic and coordination)
+
+app
+    - components
+        - visuals
+            - indicators (Custom Three.js visuals for object recognition)
+        - Agent (Mirror object to backend agent)
+        - LogTerminal (Live feed of agent detections)
+         - MissionInput (User input)
+        - Obstacle (Mirror object to the backend obstacle)
+        - PlanOverview (Displays the LLM generated plan along with the progress)
+        - PlanStep (Single step in LLM plan)
+        - Target (Mirror object to the backend obstacle)
+        - ThreeScene (Main visualization logic containing a Three.js scene)
+        - WebSocketContext (Frontend web socket manager)
+    - data
+        - globalVars (Global variables for the frontend with some copied variables from the backend)
+    - lib
+        - helpers (Helper functions)
