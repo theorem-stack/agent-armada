@@ -93,4 +93,4 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contact Information
 For questions or feedback, reach out to the project maintainers:
 - **Name:** Cameron Gifford
-- **GitHub:** [yourusername](https://github.com/theorem-stack)
+- **GitHub:** [theorem-stack](https://github.com/theorem-stack)
