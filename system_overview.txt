@@ -1,5 +1,5 @@
 System Overview:
-RescueNet was developed as part of the LabLabAi Strawberry o1 hackathon, exploring ways to allow LLMs to interact with 3D environments and specifically multi-agent systems.
+Agent Armada was developed as part of the LabLabAi Strawberry o1 hackathon, exploring ways to allow LLMs to interact with 3D environments and specifically multi-agent systems.
 
 Information Flow:
 1. Filtered Map data is loaded resembling satellite image of high level object detections. 
