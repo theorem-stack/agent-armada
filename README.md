@@ -34,10 +34,7 @@ Utilizing an **LLM (Large Language Model)** as an interface between a human and 
 - **Feedback:** The LLM can collect and interpret swarm information, allowing the human to easily understand objective progress.
 
 ### Hackathon Demo Presentation
-<video width="600" controls>
-  <source src="./public/media/your-video.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![Hackathon Demo](./public/media/demo.gif)
 
 ## Getting Started
 To set up the project locally, follow these steps:
